@@ -24,9 +24,11 @@ export default function ReaderPage() {
   const [rangeFrom,setRangeFrom]=useState(1),[rangeTo,setRangeTo]=useState(1),[repeatCount,setRepeatCount]=useState(1),[repeatsLeft,setRepeatsLeft]=useState(0);
   const [continuous,setContinuous]=useState(false),[sleepMinutes,setSleepMinutes]=useState(0),[offlineState,setOfflineState]=useState("");
   const [progress,setProgress]=useState({read:0,minutes:0,goal:10});
+  const [mobileSelecting,setMobileSelecting]=useState(true);
   const audio = useRef<HTMLAudioElement>(null);
 
   useEffect(() => { const n=Math.min(114,Math.max(1,Number(new URLSearchParams(location.search).get("surah"))||1)); setNumber(n); const saved=localStorage.getItem("nur-settings"),favs=localStorage.getItem("nur-favorite-surahs"),study=localStorage.getItem("nur-study"),stats=localStorage.getItem("nur-progress"); if(saved)setOptions({...defaults,...JSON.parse(saved)}); if(favs)setFavoriteSurahs(JSON.parse(favs)); if(study){const s=JSON.parse(study);setContinuous(!!s.continuous);setProgress(p=>({...p,goal:s.goal||10}))}if(stats)setProgress(JSON.parse(stats)); if("serviceWorker" in navigator)navigator.serviceWorker.register("/sw.js").catch(()=>{}); },[]);
+  useEffect(() => { setMobileSelecting(!new URLSearchParams(location.search).has("surah")); },[]);
   useEffect(() => { load(number,options); setNavVerse(1); },[number]);
   useEffect(() => localStorage.setItem("nur-settings",JSON.stringify(options)),[options]);
   useEffect(() => { if(audio.current)audio.current.playbackRate=options.playbackRate; },[options.playbackRate,mode]);
@@ -42,7 +44,7 @@ export default function ReaderPage() {
   async function load(n:number,opts:ReaderOptions){ setLoading(true); stopAudio(); try{setSurah(await quranApi.getSurah(n,opts))}catch{if(demoSurahs[n])setSurah(demoSurahs[n]);else setSurah({number:n,nameArabic:"",nameLatin:surahNames[n-1],revelationType:"",verses:[],sourceLabel:"Unavailable"})}finally{setLoading(false)} }
   function stopAudio(){ audio.current?.pause(); setMode("idle"); setIsPlaying(false); setCurrentTime(0); }
   function changeOptions(next:ReaderOptions){ const changed=next.riwayah!==options.riwayah||next.reciter!==options.reciter||next.tajweed!==options.tajweed; setOptions(next); if(changed)load(number,next); }
-  function go(n:number){ history.pushState({},"",`/read?surah=${n}`); setNumber(n); scrollTo({top:0,behavior:"smooth"}); }
+  function go(n:number){ history.pushState({},"",`/read?surah=${n}`); setNumber(n); setMobileSelecting(false); scrollTo({top:0,behavior:"smooth"}); }
   function toggleFavorite(){ const next=favoriteSurahs.includes(number)?favoriteSurahs.filter(n=>n!==number):[...favoriteSurahs,number]; setFavoriteSurahs(next); localStorage.setItem("nur-favorite-surahs",JSON.stringify(next)); }
   function jumpToVerse(next:number){ const target=Math.max(1,Math.min(surah.verses.length||1,next)); setNavVerse(target); document.getElementById(`verse-${target}`)?.scrollIntoView({behavior:"smooth",block:"center"}); }
   function playTrack(index:number,nextMode:PlayMode){ const url=surah.verses[index]?.audioUrl; if(!audio.current||!url)return; setCurrentIndex(index);setMode(nextMode);audio.current.src=url;audio.current.play();setIsPlaying(true); }
@@ -63,9 +65,10 @@ export default function ReaderPage() {
 
   return <main className={`${focusMode?"focus-reading ":""}${memoryMode&&hideArabic?"memory-hide-arabic":""}`}>
     <SiteHeader active="read" onSettings={()=>setSettingsOpen(true)}/>
-    <section className="reader-page">
+    <section className={`reader-page${mobileSelecting?" mobile-selecting":""}`}>
       <aside className="reader-rail"><SurahList active={number} onSelect={go}/><div className="rail-nav"><button disabled={number===1} onClick={()=>go(number-1)}>← {t("previous")}</button><button disabled={number===114} onClick={()=>go(number+1)}>{t("next")} →</button></div></aside>
       <div className="reading-area">
+        <button className="mobile-surah-back" onClick={()=>{setMobileSelecting(true);scrollTo({top:0,behavior:"smooth"})}}>← {language==="ar"?"اختيار سورة":language==="en"?"Choose a surah":"Choisir une sourate"}</button>
         <div className="reading-top">
           <div className="verse-jump"><button onClick={()=>jumpToVerse(navVerse-1)} disabled={navVerse<=1}>←</button><label><span>{language==="ar"?"الانتقال إلى الآية":language==="en"?"Go to verse":"Aller au verset"}</span><select value={navVerse} onChange={e=>jumpToVerse(Number(e.target.value))}>{surah.verses.map(v=><option key={v.number} value={v.number}>{language==="ar"?`الآية ${v.number}`:`${language==="en"?"Verse":"Verset"} ${v.number}`}</option>)}</select></label><button onClick={()=>jumpToVerse(navVerse+1)} disabled={navVerse>=surah.verses.length}>→</button></div>
           <button className={favoriteSurahs.includes(number)?"surah-favorite active":"surah-favorite"} onClick={toggleFavorite}>{favoriteSurahs.includes(number)?`♥ ${t("favoriteSurah")}`:`♡ ${language==="ar"?"إضافة إلى المفضلة":language==="en"?"Add to favorites":"Mettre en favoris"}`}</button>
