@@ -234,3 +234,23 @@ body{font-family:var(--sans)}
 @keyframes mobile-pill-read{from{transform:translateX(0) scale(.92)}to{transform:translateX(calc(100% + 6px)) scale(1)}}
 @keyframes mobile-pill-favorites{from{transform:translateX(calc(100% + 6px)) scale(.92)}to{transform:translateX(calc(200% + 12px)) scale(1)}}
 @media(prefers-reduced-motion:reduce){.topbar nav::before{animation:none!important}.topbar nav:has(a:nth-child(2).active)::before{transform:translateX(calc(100% + 6px))}.topbar nav:has(a:nth-child(3).active)::before{transform:translateX(calc(200% + 12px))}}
+
+/* Search visibility on desktop and final mobile alignment */
+@media(min-width:701px){
+  .reader-rail .rail-surahs>label{min-height:48px;align-items:center;padding:11px 14px;border-radius:16px;background:var(--surface2);transition:border-color .2s,box-shadow .2s}
+  .reader-rail .rail-surahs>label:focus-within,.picker-menu label:focus-within{border-color:color-mix(in srgb,var(--gold) 70%,var(--line));box-shadow:0 0 0 3px color-mix(in srgb,var(--gold) 10%,transparent)}
+  .reader-rail .rail-surahs input,.picker-menu input{font-size:14px}
+}
+@media(max-width:700px){
+  .topbar>.header-actions{transform:translateX(-4px)}
+  .mobile-selecting .rail-surahs{width:100%;align-items:stretch}
+  .mobile-selecting .rail-surahs h2{text-align:center}
+  .mobile-selecting .rail-surahs>label{width:calc(100% - 16px);margin-inline:auto;box-sizing:border-box}
+  .mobile-selecting .rail-surahs>div{width:100%;padding:2px 8px 20px;box-sizing:border-box}
+  .mobile-selecting .rail-surahs button{width:100%;margin:0 auto 8px;box-sizing:border-box}
+  .mobile-selecting .rail-surahs button.active{border-color:var(--gold);background:linear-gradient(90deg,color-mix(in srgb,var(--gold) 10%,var(--surface)),var(--surface));box-shadow:0 10px 28px rgba(0,0,0,.12)}
+  .chapter-head{flex-direction:column;align-items:center;text-align:center}
+  .chapter-head>strong{width:100%;text-align:center}
+  .chapter-actions{text-align:center}
+  .chapter-actions small{display:block;margin-inline:auto}
+}
