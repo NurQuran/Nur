@@ -33,7 +33,7 @@ export default function SiteHeader({ active = "home", onSettings }: { active?: "
   }
   return <header className={`topbar${navHidden ? " mobile-hidden" : ""}`}>
     <a className="brand logo-brand" href="/" aria-label="Nūr, accueil"><span className="logo-crop"><img src="/nur-logo.png" alt="Nūr" /></span></a>
-    <nav aria-label="Navigation principale"><a className={active === "home" ? "active" : ""} href="/">{t("home")}</a><a className={active === "read" ? "active" : ""} href="/read">{t("read")}</a><a className={active === "favorites" ? "active" : ""} href="/favorites">{t("favorites")}</a><a className={active === "assistant" ? "active" : ""} href="/assistant">Fiqh</a></nav>
+    <nav aria-label="Navigation principale"><a className={active === "home" ? "active" : ""} href="/">{t("home")}</a><a className={active === "read" ? "active" : ""} href="/read">{t("read")}</a><a className={active === "favorites" ? "active" : ""} href="/favorites">{t("favorites")}</a><a className={active === "assistant" ? "active" : ""} href="/assistant">Fqih</a></nav>
     <div className="header-actions"><PwaInstallButton />{onSettings && <button className="text-button settings-trigger" onClick={onSettings}><span aria-hidden="true">⌘</span> {t("settings")}</button>}<button className="icon theme-trigger" aria-label={theme === "dark" ? "Activer le mode clair" : "Activer le mode sombre"} onClick={toggleTheme}>{theme === "dark" ? "☀" : "☾"}</button></div>
   </header>;
 }
