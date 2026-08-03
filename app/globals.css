@@ -275,9 +275,14 @@ body{font-family:var(--sans)}
   .media-player{bottom:18px}.resume-toast{bottom:16px}
 }
 
-/* Transparent reading dock with a bottom-to-top glass fade */
+/* Opaque dock over a transparent, bottom-to-top glass fade on surah selection */
 @media(max-width:700px){
-  .topbar:has(nav a:nth-child(2).active){background:transparent;border-color:color-mix(in srgb,var(--gold) 18%,transparent);box-shadow:none;backdrop-filter:none;overflow:visible}
-  .topbar:has(nav a:nth-child(2).active)::after{content:"";position:absolute;z-index:-2;left:-22px;right:-22px;bottom:-18px;height:150px;pointer-events:none;background:linear-gradient(to top,color-mix(in srgb,var(--bg) 42%,transparent) 0%,color-mix(in srgb,var(--bg) 16%,transparent) 48%,transparent 100%);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);mask-image:linear-gradient(to top,#000 0%,rgba(0,0,0,.82) 44%,transparent 100%);-webkit-mask-image:linear-gradient(to top,#000 0%,rgba(0,0,0,.82) 44%,transparent 100%)}
-  .topbar:has(nav a:nth-child(2).active)>nav,.topbar:has(nav a:nth-child(2).active)>.header-actions{position:relative;z-index:1}
+  .topbar{transition:translate .42s cubic-bezier(.22,1,.36,1),opacity .3s ease}
+  .topbar.mobile-hidden{translate:0 calc(125px + env(safe-area-inset-bottom));opacity:0;pointer-events:none}
+  .topbar:has(+ .reader-page.mobile-selecting){overflow:visible}
+  .topbar:has(+ .reader-page.mobile-selecting)::after{content:"";position:absolute;z-index:-2;left:-22px;right:-22px;bottom:-18px;height:150px;pointer-events:none;background:linear-gradient(to top,color-mix(in srgb,var(--bg) 35%,transparent) 0%,color-mix(in srgb,var(--bg) 12%,transparent) 48%,transparent 100%);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);mask-image:linear-gradient(to top,#000 0%,rgba(0,0,0,.82) 44%,transparent 100%);-webkit-mask-image:linear-gradient(to top,#000 0%,rgba(0,0,0,.82) 44%,transparent 100%)}
+  .topbar:has(+ .reader-page.mobile-selecting)>nav,.topbar:has(+ .reader-page.mobile-selecting)>.header-actions{position:relative;z-index:1}
+  .media-player{left:22px;right:22px;width:auto;bottom:calc(112px + env(safe-area-inset-bottom));transform:none;border-radius:38px;animation:mobile-player-rise .45s cubic-bezier(.16,1,.3,1) both}
 }
+@keyframes mobile-player-rise{from{opacity:0;transform:translateY(28px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media(prefers-reduced-motion:reduce){.topbar{transition:none!important}.media-player{animation:none!important}}
