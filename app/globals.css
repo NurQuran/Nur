@@ -126,3 +126,71 @@ body{font-family:var(--sans)}
 /* Clearly visible text entrance when opening Personnalisation */
 .customize-tab .study-card>*{opacity:0;animation:custom-text-in .68s cubic-bezier(.16,1,.3,1) forwards!important}.customize-tab .study-card>strong{animation-delay:.12s!important}.customize-tab .study-card>label,.customize-tab .progress-numbers{animation-delay:.22s!important}.customize-tab .study-card>button:first-of-type{animation-delay:.32s!important}.customize-tab .study-card>button:nth-of-type(2){animation-delay:.42s!important}.customize-tab .study-card>small{animation-delay:.5s!important}.customize-tab .progress-numbers span{opacity:0;animation:custom-text-in .62s cubic-bezier(.16,1,.3,1) .3s forwards}.customize-tab .progress-numbers span:nth-child(2){animation-delay:.38s}@keyframes custom-text-in{from{opacity:0;transform:translateY(18px);filter:blur(7px)}to{opacity:1;transform:translateY(0);filter:blur(0)}}
 @media(prefers-reduced-motion:reduce){.customize-tab .study-card>*,.customize-tab .progress-numbers span{animation:none!important;opacity:1!important;transform:none!important;filter:none!important}}
+
+/* Installable Android/PWA experience */
+.install-app{display:flex;align-items:center;gap:7px;min-height:42px;padding:0 14px;border:1px solid color-mix(in srgb,var(--gold) 55%,var(--line));border-radius:99px;background:color-mix(in srgb,var(--gold) 12%,var(--surface));color:var(--gold);cursor:pointer;font-size:12px;font-weight:700;animation:text-rise .4s cubic-bezier(.16,1,.3,1) both}.install-app span:first-child{font-size:18px;line-height:1}
+
+@media(max-width:900px){
+  body{padding-bottom:calc(88px + env(safe-area-inset-bottom))}
+  .topbar{position:sticky;top:0;height:68px;padding:0 15px;border-bottom:1px solid var(--line)}
+  .topbar nav{display:grid;position:fixed;z-index:150;left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom));grid-template-columns:repeat(3,1fr);gap:5px;padding:7px;background:color-mix(in srgb,var(--surface) 93%,transparent);border:1px solid color-mix(in srgb,var(--gold) 24%,var(--line));border-radius:24px;box-shadow:0 18px 55px rgba(0,0,0,.42);backdrop-filter:blur(22px);animation:mobile-nav-rise .55s cubic-bezier(.16,1,.3,1) both}
+  .topbar nav a{display:grid;place-items:center;min-height:50px;padding:8px 5px;border-radius:17px;color:var(--muted);font-size:11px;font-weight:650;transition:background .25s,color .25s,transform .25s}
+  .topbar nav a.active{background:var(--gold);color:#101a16;box-shadow:0 8px 24px color-mix(in srgb,var(--gold) 22%,transparent)}
+  .topbar nav a.active:after,.topbar nav a:after{display:none}
+  .topbar nav a:active{transform:scale(.96)}
+  .install-app{width:42px;padding:0;justify-content:center}.install-app span:last-child{display:none}
+  .media-player{bottom:calc(88px + env(safe-area-inset-bottom))}
+  .resume-toast{bottom:calc(94px + env(safe-area-inset-bottom))}
+}
+
+@keyframes mobile-nav-rise{from{opacity:0;transform:translateY(28px) scale(.96);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
+@media(prefers-reduced-motion:reduce){.install-app,.topbar nav{animation:none!important}}
+
+/* Phone-first application layout */
+@media(max-width:700px){
+  html{font-size:17px}
+  body{padding-bottom:calc(104px + env(safe-area-inset-bottom));font-size:17px;line-height:1.55}
+  button,select,input,a{touch-action:manipulation}
+  button,select{min-height:48px}
+
+  .topbar{position:fixed;z-index:200;top:auto;left:10px;right:10px;bottom:calc(9px + env(safe-area-inset-bottom));height:82px;display:grid;grid-template-columns:68px minmax(0,1fr) auto;gap:7px;padding:7px 8px;background:color-mix(in srgb,var(--surface) 96%,transparent);border:1px solid color-mix(in srgb,var(--gold) 30%,var(--line));border-radius:28px;box-shadow:0 22px 65px rgba(0,0,0,.5);backdrop-filter:blur(24px);animation:mobile-nav-rise .55s cubic-bezier(.16,1,.3,1) both}
+  .topbar>.brand{justify-self:stretch;display:grid;place-items:center;width:68px;height:66px;padding:7px;border-radius:21px;background:#050706;overflow:hidden}
+  .topbar .logo-crop{width:62px;height:36px;overflow:hidden}
+  .topbar .logo-crop img{width:62px;height:auto;left:0;top:0}
+  .topbar nav{position:static;inset:auto;display:grid;grid-template-columns:repeat(3,minmax(48px,1fr));gap:4px;padding:0;background:none;border:0;border-radius:0;box-shadow:none;backdrop-filter:none;animation:none}
+  .topbar nav a{display:grid;place-items:center;min-width:0;min-height:66px;padding:7px 4px;border-radius:20px;font-size:12px;font-weight:750;letter-spacing:.01em}
+  .topbar nav a.active{background:var(--gold);color:#101a16;box-shadow:0 8px 24px color-mix(in srgb,var(--gold) 24%,transparent)}
+  .topbar>.header-actions{display:flex;gap:5px;justify-self:end}
+  .topbar .icon,.topbar .text-button,.topbar .install-app{width:48px;height:66px;min-height:66px;padding:0;border-radius:20px}
+  .topbar .text-button{font-size:0}.topbar .text-button span{font-size:21px}
+  .topbar .theme-trigger{font-size:21px}
+
+  .home-hero{min-height:calc(100svh - 30px);padding:48px 18px 124px}
+  .home-hero h1{margin:15px 0;font-size:clamp(43px,13vw,58px);line-height:.98}
+  .home-hero .lede{max-width:34rem;margin:14px auto 26px;font-size:18px;line-height:1.65}
+  .eyebrow{font-size:11px;letter-spacing:.18em}
+  .picker{width:100%;max-width:520px}
+  .picker-trigger{min-height:68px;padding:15px 17px;border-radius:20px}
+  .picker-trigger strong{font-size:20px}
+  .picker-menu{border-radius:22px}.picker-menu a{min-height:58px;padding:14px 12px}.picker-menu a strong{font-size:17px}
+  .quiet-link{font-size:14px}
+  .home-features{padding:36px 18px 120px}.home-features article{padding:26px 20px;border:1px solid var(--line);border-radius:24px;background:var(--surface2)}.home-features h2{font-size:26px}.home-features p{font-size:16px}
+
+  .reader-page{min-height:100svh}
+  .reader-rail{padding:22px 14px}.rail-nav button,.rail-surahs button{min-height:54px;border-radius:16px;font-size:15px}
+  .reading-area{padding:0 14px 130px}
+  .reading-top{gap:12px;padding:16px 0}.reading-top>*{width:100%}
+  .verse-jump>button{width:50px;height:50px;border-radius:16px}.verse-jump label{min-height:50px;border-radius:16px}.verse-jump label span{font-size:10px}.verse-jump select{font-size:15px}
+  .surah-favorite{align-self:stretch;min-height:50px;font-size:14px}
+  .chapter-head{padding:34px 2px 26px;gap:12px}.chapter-head h1{font-size:42px}.chapter-head>strong{font-size:39px}.chapter-head p{font-size:14px}
+  .edition-bar{padding:15px;border-radius:18px;font-size:13px}.edition-bar button{min-height:50px;font-size:15px;border-radius:14px}
+  .play-surah{min-height:62px;font-size:16px;border-radius:20px}
+  .basmala{padding:18px 8px;font-size:34px}
+  .verse-stack{gap:18px}.verse-card{padding:25px 18px;border-radius:26px}.verse-number{font-size:14px}.verse-number button{width:48px;height:48px}
+  .verse-card .arabic{font-size:clamp(33px,9.5vw,43px);line-height:2.05}
+  .transliteration{font-size:18px;line-height:1.75}.translations small{font-size:11px}.translations p{font-size:17px;line-height:1.75}
+  .study-toggle{min-height:54px;font-size:15px}.study-card{padding:18px}.study-card button{min-height:50px;font-size:14px}.study-card label,.study-card small{font-size:12px}
+  .settings-modal{width:calc(100vw - 20px);max-height:calc(100svh - 24px);padding:16px;border-radius:28px}.settings-tabs button,.choice-row button,.modal-save{min-height:52px;font-size:15px}.setting-group{padding:17px}.setting-group label,.setting-group p{font-size:14px}
+  .media-player{bottom:calc(104px + env(safe-area-inset-bottom));width:calc(100vw - 20px);border-radius:24px}.resume-toast{right:10px;bottom:calc(110px + env(safe-area-inset-bottom));width:calc(100vw - 20px)}
+  .site-footer{padding-bottom:20px}.footer-main{padding:28px 18px}.credits{padding:18px}
+}
