@@ -194,3 +194,31 @@ body{font-family:var(--sans)}
   .media-player{bottom:calc(104px + env(safe-area-inset-bottom));width:calc(100vw - 20px);border-radius:24px}.resume-toast{right:10px;bottom:calc(110px + env(safe-area-inset-bottom));width:calc(100vw - 20px)}
   .site-footer{padding-bottom:20px}.footer-main{padding:28px 18px}.credits{padding:18px}
 }
+
+/* Mobile navigation and dedicated surah selection */
+.mobile-surah-back{display:none}
+@media(max-width:700px){
+  .topbar{left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom));height:82px;grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:7px;border-radius:30px;background:color-mix(in srgb,var(--surface) 94%,transparent);border-color:color-mix(in srgb,var(--gold) 22%,var(--line));box-shadow:0 18px 54px rgba(0,0,0,.46),inset 0 1px rgba(255,255,255,.05)}
+  .topbar>.brand{display:none}
+  .topbar nav{width:100%;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+  .topbar nav a{min-height:66px;padding:8px 10px;border-radius:22px;font-size:13px;font-weight:760}
+  .topbar nav a.active{box-shadow:0 8px 22px color-mix(in srgb,var(--gold) 20%,transparent)}
+  .topbar>.header-actions{gap:6px}
+  .topbar .install-app{display:none}
+  .topbar .icon,.topbar .text-button{width:48px;height:66px;min-height:66px;border-radius:21px}
+
+  .reader-page .reader-rail{display:none}
+  .reader-page.mobile-selecting{display:block;min-height:calc(100svh - 104px);padding:0 14px 112px;background:radial-gradient(circle at 50% 0,color-mix(in srgb,var(--gold) 8%,transparent),transparent 34%)}
+  .reader-page.mobile-selecting .reader-rail{display:flex;position:relative;top:0;width:100%;height:calc(100svh - 124px)!important;min-height:600px;padding:32px 4px 18px;border:0!important;background:transparent;animation:text-rise .5s cubic-bezier(.16,1,.3,1) both}
+  .reader-page.mobile-selecting .reading-area{display:none}
+  .reader-page.mobile-selecting~.site-footer{display:none}
+  .mobile-selecting .rail-surahs h2{margin:0 0 20px;padding:0 4px;font-size:36px;letter-spacing:-.035em}
+  .mobile-selecting .rail-surahs>label{min-height:58px;align-items:center;padding:13px 16px;border-radius:20px;background:var(--surface);font-size:18px}
+  .mobile-selecting .rail-surahs input{font-size:16px}
+  .mobile-selecting .rail-surahs>div{margin-top:14px;padding:2px 2px 20px}
+  .mobile-selecting .rail-surahs button{grid-template-columns:52px 1fr;align-items:center;min-height:68px;margin-bottom:8px;padding:12px 16px;border:1px solid var(--line);border-radius:22px;background:color-mix(in srgb,var(--surface) 88%,transparent);box-shadow:0 8px 24px rgba(0,0,0,.08)}
+  .mobile-selecting .rail-surahs button.active{border-color:color-mix(in srgb,var(--gold) 65%,var(--line));box-shadow:inset 3px 0 var(--gold),0 10px 28px rgba(0,0,0,.12)}
+  .mobile-selecting .rail-surahs button span{font-size:13px}.mobile-selecting .rail-surahs button strong{font-size:18px}
+  .mobile-selecting .rail-nav{margin-top:10px;gap:10px}.mobile-selecting .rail-nav button{min-height:56px;text-align:center;border-radius:18px;font-size:13px}
+  .mobile-surah-back{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:54px;margin:14px 0 2px;border:1px solid color-mix(in srgb,var(--gold) 42%,var(--line));border-radius:18px;background:color-mix(in srgb,var(--gold) 8%,var(--surface));color:var(--text);font-size:15px;font-weight:700;cursor:pointer}
+}
