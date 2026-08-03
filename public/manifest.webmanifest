@@ -1,0 +1,19 @@
+{
+  "name": "Nūr — Le Coran, éclairé",
+  "short_name": "Nūr",
+  "description": "Lire, écouter et méditer le Coran.",
+  "lang": "fr",
+  "dir": "auto",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "categories": ["education", "books", "lifestyle"],
+  "icons": [
+    { "src": "/icons/nur-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/nur-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/nur-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
