@@ -10,7 +10,7 @@ import { quranApi, warshSurahAudio } from "../../lib/quran/adapters/alQuranCloud
 import { surahNames } from "../../lib/quran/surahs";
 import type { QuranSurah, ReaderOptions } from "../../lib/quran/types";
 
-const defaults: ReaderOptions = { riwayah:"hafs", reciter:"ar.alafasy", fontSize:40, tajweed:true, showFrench:true, showEnglish:true, showTransliteration:true, playbackRate:1, repeatVerse:false };
+const defaults: ReaderOptions = { riwayah:"hafs", reciter:"ar.alafasy", fontSize:40, tajweed:false, showFrench:true, showEnglish:true, showTransliteration:true, playbackRate:1, repeatVerse:false };
 type PlayMode = "idle" | "single" | "sequence" | "range" | "warsh";
 
 export default function ReaderPage() {
