@@ -1,4 +1,4 @@
-const SHELL = "nur-shell-v9";
+const SHELL = "nur-shell-v10";
 const CONTENT = "nur-content-v1";
 const ALLOWED_EXTERNAL_HOSTS = new Set([
   "api.alquran.cloud",
@@ -6,7 +6,7 @@ const ALLOWED_EXTERNAL_HOSTS = new Set([
   "server10.mp3quran.net", "server11.mp3quran.net", "server13.mp3quran.net",
   "server16.mp3quran.net", "cdn.islamic.network"
 ]);
-const OFFLINE_SHELL = ["/", "/read", "/favorites", "/assistant", "/manifest.webmanifest", "/nur-logo.png", "/icons/nur-192.png", "/icons/nur-512.png"];
+const OFFLINE_SHELL = ["/", "/read", "/favorites", "/assistant", "/manifest.webmanifest", "/nur-logo.png", "/icons/nur-180.png", "/icons/nur-192.png", "/icons/nur-512.png", "/icons/nur-app-rounded-1024.png"];
 
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(SHELL).then(cache => cache.addAll(OFFLINE_SHELL)));

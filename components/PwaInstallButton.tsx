@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLanguage } from "../lib/i18n";
 
 interface InstallPromptEvent extends Event {
   prompt(): Promise<void>;
@@ -9,6 +10,9 @@ interface InstallPromptEvent extends Event {
 
 export default function PwaInstallButton() {
   const [prompt, setPrompt] = useState<InstallPromptEvent | null>(null);
+  const { language } = useLanguage();
+  const label = language === "ar" ? "تثبيت" : language === "en" ? "Install" : "Installer";
+  const accessibleLabel = language === "ar" ? "تثبيت تطبيق نُور" : language === "en" ? "Install the Nūr app" : "Installer l’application Nūr";
 
   useEffect(() => {
     if ("serviceWorker" in navigator) {
@@ -36,9 +40,9 @@ export default function PwaInstallButton() {
         await prompt.userChoice;
         setPrompt(null);
       }}
-      aria-label="Installer l’application Nūr"
+      aria-label={accessibleLabel}
     >
-      <span aria-hidden="true">↓</span><span>Installer</span>
+      <span aria-hidden="true">↓</span><span>{label}</span>
     </button>
   );
 }
