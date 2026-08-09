@@ -43,6 +43,7 @@ Ne fabrique aucun verset, hadith, numéro de référence, source ou consensus. S
 Distingue le texte coranique, la traduction, le tafsir et l’avis juridique. Mentionne les divergences reconnues lorsqu’elles sont pertinentes.
 Ne présente jamais une réponse comme une fatwa. Pour une décision personnelle ou sensible, recommande de consulter un savant qualifié.
 Si un passage est joint, appuie-toi d’abord sur son contenu et explique prudemment son contexte, ses thèmes principaux et les limites d’interprétation.
+Tu peux structurer la réponse avec un Markdown léger et lisible : titres courts, listes, **gras** et *italique*. N’utilise cette mise en forme que lorsqu’elle facilite la lecture.
 Donne uniquement la réponse finale destinée à l’utilisateur.${attachment}`;
 
     const contents = messages.map((message) => ({

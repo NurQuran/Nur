@@ -2,6 +2,7 @@
 
 import { FormEvent, KeyboardEvent, useEffect, useRef, useState } from "react";
 import SiteHeader from "../../components/SiteHeader";
+import MarkdownMessage from "../../components/MarkdownMessage";
 import { useLanguage } from "../../lib/i18n";
 import { surahs } from "../../lib/quran/surahs";
 
@@ -70,12 +71,12 @@ export default function AssistantPage() {
   function openPicker(){setPickerOpen(v=>!v);requestAnimationFrame(()=>{composer.current?.scrollIntoView({behavior:"smooth",block:"center"});setTimeout(()=>window.scrollBy({top:Math.min(220,innerHeight*.24),behavior:"smooth"}),180)})}
 
   return <main className="assistant-page"><SiteHeader active="assistant"/><section className={`assistant-shell${messages.length?" conversation-started":""}`}>
-    {!messages.length&&<><header className="assistant-hero"><span className="ai-mark" aria-hidden="true"><i/></span><div><small>{t("fqihEyebrow")}</small><h1>Fqih</h1><p>{t("fqihLead")}</p></div></header>
+    {!messages.length&&<><header className="assistant-hero"><span className="ai-mark" aria-hidden="true">Fqih</span><div><small>{t("fqihEyebrow")}</small><h1>Fqih</h1><p>{t("fqihLead")}</p></div></header>
     <div className="ai-disclaimer"><span className="inline-spark" aria-hidden="true"/> {t("fqihDisclaimer")}</div></>}
     <div className="chat-stream" aria-live="polite">
       {!messages.length&&<div className="ai-welcome"><h2>{t("fqihWelcome")}</h2><p>{t("fqihWelcomeLead")}</p><div><button onClick={()=>setDraft(language==="ar"?"اشرح الموضوع الرئيسي لسورة الفاتحة.":language==="en"?"Explain the main theme of Surah Al-Fātiḥah.":"Explique-moi le thème principal de la sourate Al-Fātiḥah.")}>{language==="ar"?"شرح الفاتحة":language==="en"?"Explain Al-Fātiḥah":"Expliquer Al-Fātiḥah"}</button><button onClick={()=>setDraft(language==="ar"?"كيف أميّز بين الشرح والحكم الشرعي؟":language==="en"?"How do I distinguish an explanation from a legal opinion?":"Comment distinguer une explication d’un avis juridique ?")}>{language==="ar"?"فهم الرأي الشرعي":language==="en"?"Understand an opinion":"Comprendre un avis"}</button></div></div>}
-      {messages.map((m,i)=><article key={i} className={`chat-message ${m.role}`}><span>{m.role==="assistant"?<i className="inline-spark" aria-hidden="true"/>:t("you")}</span><div>{m.attachmentLabel&&<b className="attachment-bubble">{m.attachmentLabel}</b>}<p>{m.content}</p></div></article>)}
-      {loading&&<article className="chat-message assistant thinking"><span><i className="inline-spark" aria-hidden="true"/></span><div><i/><i/><i/></div></article>}
+      {messages.map((m,i)=><article key={i} className={`chat-message ${m.role}`}><span>{m.role==="assistant"?"Fqih":t("you")}</span><div>{m.attachmentLabel&&<b className="attachment-bubble">{m.attachmentLabel}</b>}{m.role==="assistant"?<MarkdownMessage content={m.content}/>:<p>{m.content}</p>}</div></article>)}
+      {loading&&<article className="chat-message assistant thinking"><span>Fqih</span><div><i/><i/><i/></div></article>}
       {error&&<div className="ai-error" role="alert">{error}</div>}<div ref={end}/>
     </div>
     <form ref={composer} className="chat-composer" onSubmit={submit}>
