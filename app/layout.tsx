@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import ResumeToast from "../components/ResumeToast";
+import WelcomeOnboarding from "../components/WelcomeOnboarding";
 
 export const metadata: Metadata = {
   title: "Nūr — Le Coran, éclairé",
@@ -25,5 +26,5 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="fr" suppressHydrationWarning><body>{children}<ResumeToast/></body></html>;
+  return <html lang="fr" suppressHydrationWarning><body>{children}<ResumeToast/><WelcomeOnboarding/></body></html>;
 }
