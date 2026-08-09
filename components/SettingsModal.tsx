@@ -9,9 +9,17 @@ const legends=[{c:"madda_normal",fr:"Prolongation normale",en:"Normal prolongati
 const hafsVoices=[{id:"ar.alafasy",name:"Mishary Alafasy"},{id:"ar.husary",name:"Mahmoud Al-Hussary"},{id:"ar.abdurrahmaansudais",name:"Abdurrahman As-Sudais"},{id:"ar.mahermuaiqly",name:"Maher Al-Muaiqly"},{id:"ar.saoodshuraym",name:"Saoud Ash-Shuraym"},{id:"ar.abdulsamad",name:"Abdul Basit Abdus-Samad"},{id:"ar.aymanswoaid",name:"Ayman Sowaid"},{id:"ar.muhammadayyoub",name:"Muhammad Ayyoub"}];
 
 export default function SettingsModal({value,onChange,onClose,studyPanel,customizePanel}:{value:ReaderOptions;onChange:(value:ReaderOptions)=>void;onClose:()=>void;studyPanel?:ReactNode;customizePanel?:ReactNode}){
-  const {t,language}=useLanguage(); const [closing,setClosing]=useState(false);
+  const {t,language}=useLanguage(); const [closing,setClosing]=useState(false),[resetConfirm,setResetConfirm]=useState(false),[resetting,setResetting]=useState(false);
   const local=(fr:string,en:string,ar:string)=>language==="ar"?ar:language==="en"?en:fr;
   function close(){setClosing(true);setTimeout(onClose,300)}
+  async function resetAllData(){
+    setResetting(true);
+    Object.keys(localStorage).filter(key=>key.startsWith("nur-")).forEach(key=>localStorage.removeItem(key));
+    Object.keys(sessionStorage).filter(key=>key.startsWith("nur-")).forEach(key=>sessionStorage.removeItem(key));
+    if("caches" in window){try{const names=await caches.keys();await Promise.all(names.filter(name=>name.startsWith("nur-")).map(name=>caches.delete(name)))}catch{}}
+    document.documentElement.setAttribute("data-theme","dark");
+    location.replace("/");
+  }
   return <div className={`modal-layer ${closing?"closing":""}`} role="presentation" onMouseDown={e=>e.target===e.currentTarget&&close()}>
     <section className="settings-modal" role="dialog" aria-modal="true" aria-labelledby="settings-title">
       <div className="modal-head"><div><small>{t("preferences")}</small><h2 id="settings-title">{t("settings")}</h2></div><button className="icon" onClick={close} aria-label={t("close")}>×</button></div>
@@ -25,9 +33,14 @@ export default function SettingsModal({value,onChange,onClose,studyPanel,customi
       <div className="setting-group"><span className="setting-icon arabic-icon">أ</span><div><h3>{t("arabicWriting")}</h3><p>{t("writingHelp")}</p><label>{t("size")}<input type="range" min="28" max="60" value={value.fontSize} onChange={e=>onChange({...value,fontSize:Number(e.target.value)})}/><output>{value.fontSize}px</output></label><label className="switch-line"><span>{t("tajweedColors")}<small>{t("pronunciation")}</small></span><input type="checkbox" checked={value.tajweed} disabled={value.riwayah==="warsh"} onChange={e=>onChange({...value,tajweed:e.target.checked})}/></label>{value.riwayah==="warsh"&&<p className="warsh-setting-note">{local("Texte Warsh vérifié. Les couleurs restent désactivées faute de source Warsh colorée fiable.","Verified Warsh text. Colors remain disabled without a reliable colored Warsh source.","نص ورش موثوق. الألوان معطلة لعدم توفر مصدر ورش ملون موثوق.")}</p>}{value.tajweed&&value.riwayah==="hafs"&&<div className="tajweed-legend"><h4>{local("Légende des couleurs","Color legend","دليل الألوان")}</h4><div>{legends.map(item=><span key={item.c}><i className={item.c}/>{item[language]}</span>)}</div></div>}</div></div>
       <div className="setting-group"><span className="setting-icon">Aa</span><div><h3>{t("translations")}</h3><p>{t("translationsHelp")}</p><label className="switch-line"><span>Français</span><input type="checkbox" checked={value.showFrench} onChange={e=>onChange({...value,showFrench:e.target.checked})}/></label><label className="switch-line"><span>English</span><input type="checkbox" checked={value.showEnglish} onChange={e=>onChange({...value,showEnglish:e.target.checked})}/></label><label className="switch-line"><span>{local("Prononciation","Pronunciation","النطق")}</span><input type="checkbox" checked={value.showTransliteration} onChange={e=>onChange({...value,showTransliteration:e.target.checked})}/></label></div></div>
       {studyPanel}
-      <div className="settings-reading-section"><span className="setting-icon reading-setting-icon" aria-hidden="true"><i/></span>{customizePanel}</div>
+      <div className="settings-reading-section">{customizePanel}</div>
       </div>
       <button className="primary modal-save" onClick={close}>{t("apply")}</button>
+      <section className={`reset-data-card${resetConfirm?" confirming":""}`} aria-labelledby="reset-data-title">
+        <span className="reset-data-icon" aria-hidden="true"><i/></span>
+        <div><strong id="reset-data-title">{local("Réinitialiser Nūr","Reset Nūr","إعادة ضبط نُور")}</strong><p>{local("Efface les favoris, la progression, les téléchargements et toutes les préférences de cet appareil.","Erases favorites, progress, downloads and every preference on this device.","يمسح المفضلة والتقدم والتنزيلات وجميع التفضيلات على هذا الجهاز.")}</p></div>
+        {!resetConfirm?<button className="reset-data-button" onClick={()=>setResetConfirm(true)}>{local("Effacer toutes les données","Erase all data","مسح جميع البيانات")}</button>:<div className="reset-data-confirm" role="alert"><p>{local("Tout recommencer et revoir l’introduction ?","Start over and show the introduction again?","هل تريد البدء من جديد وعرض المقدمة مرة أخرى؟")}</p><div><button onClick={()=>setResetConfirm(false)} disabled={resetting}>{local("Annuler","Cancel","إلغاء")}</button><button className="danger" onClick={resetAllData} disabled={resetting}>{resetting?local("Effacement…","Erasing…","جارٍ المسح…"):local("Oui, tout effacer","Yes, erase everything","نعم، امسح الكل")}</button></div></div>}
+      </section>
     </section>
   </div>
 }
