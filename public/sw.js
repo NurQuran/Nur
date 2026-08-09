@@ -1,4 +1,4 @@
-const SHELL = "nur-shell-v5";
+const SHELL = "nur-shell-v6";
 const CONTENT = "nur-content-v1";
 const ALLOWED_EXTERNAL_HOSTS = new Set([
   "api.alquran.cloud",

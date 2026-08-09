@@ -355,3 +355,30 @@ body{font-family:var(--sans)}
   .mark-read-button{margin-bottom:30px}
 }
 @media(max-width:520px){.favorites-progress-stats{grid-template-columns:1fr}.favorites-progress{padding:25px 20px}.topbar .theme-trigger{transform:translateX(-9px)}}
+
+/* Streamlined settings and softer interaction system */
+.modal-layer{z-index:400!important}
+.verse-number .verse-explain{width:auto!important;min-width:94px!important;height:42px!important;padding:0 15px!important;border-radius:999px!important;font-size:11px!important;overflow:visible}
+.verse-number .verse-explain::before{content:none!important}
+.verse-number>div>button:last-child{width:42px;height:42px;border-radius:15px!important;transition:transform .22s cubic-bezier(.16,1,.3,1),border-color .22s,background .22s}
+.verse-number>div>button:last-child:hover:not(:disabled){transform:scale(1.06);border-color:var(--gold);background:color-mix(in srgb,var(--gold) 10%,transparent)}
+.modal-head{position:sticky;z-index:12;top:-30px;margin:-30px -8px 0;padding:30px 18px 18px;background:color-mix(in srgb,var(--surface) 96%,transparent);backdrop-filter:blur(22px);box-shadow:0 1px color-mix(in srgb,var(--line) 72%,transparent)}
+.modal-head>div{padding-inline-start:8px}.modal-head .icon{border-radius:999px!important;transition:transform .22s ease,background .22s ease}.modal-head .icon:hover{transform:rotate(8deg) scale(1.05);background:var(--surface2)}
+.settings-modal{box-sizing:border-box;margin-inline:auto;scroll-padding-top:110px}
+.settings-content{padding-top:8px}.settings-reading-section .customize-grid{display:block}.settings-reading-section .study-card:first-child,.settings-reading-section .progress-card{display:none!important}.settings-reading-section .study-card{margin-top:14px}
+.choice-row button,.setting-group select,.study-card button,.study-action,.modal-save,.settings-reading-section button{border-radius:999px!important;transition:transform .24s cubic-bezier(.16,1,.3,1),border-color .22s,background .22s,box-shadow .22s}
+.choice-row button:hover,.study-card button:hover,.study-action:hover,.settings-reading-section button:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(0,0,0,.1)}
+.setting-group{transition:transform .3s cubic-bezier(.16,1,.3,1),border-color .25s,box-shadow .25s}.setting-group:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--gold) 30%,var(--line));box-shadow:0 14px 35px rgba(0,0,0,.08)}
+.chat-message>div,.verse-card,.favorite-grid a,.home-features article{transition:transform .32s cubic-bezier(.16,1,.3,1),border-color .25s,box-shadow .25s,background .25s}.chat-message:hover>div{transform:translateY(-2px)}
+
+@media(max-width:900px){
+  .topbar>.header-actions{transform:translateX(-8px)!important}
+  .topbar .settings-trigger{width:60px!important;margin-left:-6px;border-radius:999px!important}
+  .topbar .theme-trigger{transform:none!important}
+  .modal-layer{padding:12px!important;place-items:center!important}
+  .settings-modal{width:calc(100vw - 24px)!important;max-width:720px!important;max-height:calc(100svh - 24px)!important;margin:auto!important;padding:16px!important;border-radius:38px!important}
+  .modal-head{top:-16px;margin:-16px -8px 0;padding:21px 14px 17px}.modal-head>div{padding-inline-start:9px}
+  .modal-head h2{font-size:33px}.modal-head small{font-size:9px}
+  .setting-group{border-radius:32px!important}.choice-row button,.study-card button,.study-action,.modal-save{min-height:52px}
+}
+@media(max-width:430px){.topbar>.header-actions{transform:translateX(-10px)!important}.topbar .settings-trigger{width:57px!important;margin-left:-7px}.settings-modal{width:calc(100vw - 18px)!important}.modal-head>div{padding-inline-start:11px}}
