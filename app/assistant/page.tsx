@@ -44,8 +44,23 @@ export default function AssistantPage() {
     const user:Message={role:"user",content:clean,attachmentLabel:forcedAttachment?.label};const next=[...messages,user];
     setMessages(next);setDraft("");setLoading(true);setError("");
     try{
-      const response=await fetch("/api/ai-fiqh",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({messages:next.map(({role,content})=>({role,content})),attachment:forcedAttachment,language,safetyId:stableSafetyId()})});
-      const data=await response.json() as {answer?:string;error?:string};if(!response.ok)throw new Error(data.error||"Response unavailable.");
+      const requestBody=JSON.stringify({messages:next.map(({role,content})=>({role,content})),attachment:forcedAttachment,language,safetyId:stableSafetyId()});
+      let response:Response|null=null;
+      let data:{answer?:string;error?:string}={};
+      for(let attempt=0;attempt<2;attempt++){
+        const controller=new AbortController();
+        const timeout=setTimeout(()=>controller.abort(),45_000);
+        try{
+          response=await fetch("/api/ai-fiqh",{method:"POST",headers:{"content-type":"application/json"},body:requestBody,signal:controller.signal,cache:"no-store"});
+          const raw=await response.text();
+          try{data=raw?JSON.parse(raw):{}}catch{data={error:raw||"Response unavailable."}}
+          if(response.ok||![429,500,502,503,504].includes(response.status))break;
+        }catch(requestError){
+          if(attempt===1)throw requestError;
+        }finally{clearTimeout(timeout)}
+        await new Promise(resolve=>setTimeout(resolve,850));
+      }
+      if(!response?.ok)throw new Error(data.error||(language==="ar"?"تعذر الحصول على إجابة. حاول مرة أخرى.":language==="en"?"The assistant did not respond. Please try again.":"L’assistant n’a pas répondu. Réessayez."));
       if(!data.answer?.trim())throw new Error(language==="ar"?"لم تصل إجابة. حاول مرة أخرى.":language==="en"?"No answer was received. Please try again.":"Aucune réponse reçue. Réessayez.");
       setMessages(items=>[...items,{role:"assistant",content:data.answer!.trim()}]);setAttachment(null);
     }catch(e){setError(e instanceof Error?e.message:(language==="ar"?"المساعد غير متاح.":language==="en"?"The assistant is unavailable.":"L’assistant est indisponible."))}finally{setLoading(false)}
@@ -54,9 +69,9 @@ export default function AssistantPage() {
   function handleKeyDown(e:KeyboardEvent<HTMLTextAreaElement>){if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();void send()}}
   function openPicker(){setPickerOpen(v=>!v);requestAnimationFrame(()=>{composer.current?.scrollIntoView({behavior:"smooth",block:"center"});setTimeout(()=>window.scrollBy({top:Math.min(220,innerHeight*.24),behavior:"smooth"}),180)})}
 
-  return <main className="assistant-page"><SiteHeader active="assistant"/><section className="assistant-shell">
-    <header className="assistant-hero"><span className="ai-mark" aria-hidden="true">✦</span><div><small>{t("fqihEyebrow")}</small><h1>Fqih</h1><p>{t("fqihLead")}</p></div></header>
-    <div className="ai-disclaimer">✦ {t("fqihDisclaimer")}</div>
+  return <main className="assistant-page"><SiteHeader active="assistant"/><section className={`assistant-shell${messages.length?" conversation-started":""}`}>
+    {!messages.length&&<><header className="assistant-hero"><span className="ai-mark" aria-hidden="true">✦</span><div><small>{t("fqihEyebrow")}</small><h1>Fqih</h1><p>{t("fqihLead")}</p></div></header>
+    <div className="ai-disclaimer">✦ {t("fqihDisclaimer")}</div></>}
     <div className="chat-stream" aria-live="polite">
       {!messages.length&&<div className="ai-welcome"><h2>{t("fqihWelcome")}</h2><p>{t("fqihWelcomeLead")}</p><div><button onClick={()=>setDraft(language==="ar"?"اشرح الموضوع الرئيسي لسورة الفاتحة.":language==="en"?"Explain the main theme of Surah Al-Fātiḥah.":"Explique-moi le thème principal de la sourate Al-Fātiḥah.")}>{language==="ar"?"شرح الفاتحة":language==="en"?"Explain Al-Fātiḥah":"Expliquer Al-Fātiḥah"}</button><button onClick={()=>setDraft(language==="ar"?"كيف أميّز بين الشرح والحكم الشرعي؟":language==="en"?"How do I distinguish an explanation from a legal opinion?":"Comment distinguer une explication d’un avis juridique ?")}>{language==="ar"?"فهم الرأي الشرعي":language==="en"?"Understand an opinion":"Comprendre un avis"}</button></div></div>}
       {messages.map((m,i)=><article key={i} className={`chat-message ${m.role}`}><span>{m.role==="assistant"?"✦":t("you")}</span><div>{m.attachmentLabel&&<b className="attachment-bubble">◈ {m.attachmentLabel}</b>}<p>{m.content}</p></div></article>)}

@@ -331,3 +331,27 @@ body{font-family:var(--sans)}
 }
 @media(max-width:520px){.topbar{left:12px!important;right:12px!important}.topbar>.header-actions{gap:3px}.topbar .icon,.topbar .text-button{width:43px}.chat-composer{width:calc(100vw - 24px)}.assistant-hero p{font-size:14px}.about-section h2{font-size:37px}}
 @media(prefers-reduced-motion:reduce){.about-section>*,.about-section>div,.assistant-hero,.ai-disclaimer,.ai-welcome,.chat-message,.attachment-picker{animation:none!important}.topbar nav::before{transition:none!important}}
+
+/* Unified cards, reading completion and resilient Fqih layout */
+.verse-card,.favorite-grid a,.favorites-progress,.chat-message>div,.ai-disclaimer,.ai-error,.attachment-picker,.chat-composer,.settings-modal,.study-card,.study-panel,.connection-toast,.resume-toast,.media-player,.empty{border-radius:38px!important}
+.verse-number .verse-explain{width:42px!important;min-width:42px;height:42px!important;min-height:42px;padding:0!important;border-radius:15px!important;font-size:0!important;overflow:hidden}
+.verse-number .verse-explain::before{content:"✦";font-size:18px;color:var(--gold)}
+.mark-read-button{display:flex;align-items:center;justify-content:center;width:100%;min-height:64px;margin:28px 0 48px;border:1px solid color-mix(in srgb,var(--gold) 55%,var(--line));border-radius:38px;background:color-mix(in srgb,var(--gold) 10%,var(--surface));color:var(--gold);font-weight:800;cursor:pointer;transition:transform .3s cubic-bezier(.16,1,.3,1),background .25s,border-color .25s}
+.mark-read-button:hover:not(:disabled){transform:translateY(-3px);background:color-mix(in srgb,var(--gold) 16%,var(--surface));border-color:var(--gold)}
+.mark-read-button.completed{cursor:default;background:color-mix(in srgb,#67ad82 12%,var(--surface));border-color:color-mix(in srgb,#67ad82 55%,var(--line));color:#67ad82}
+.customize-grid .progress-card{display:none!important}
+.favorites-progress{max-width:1100px;margin:54px auto 10px;padding:clamp(24px,4vw,42px);display:grid;grid-template-columns:minmax(220px,1fr) minmax(300px,1.35fr) minmax(170px,.6fr);align-items:center;gap:28px;border:1px solid color-mix(in srgb,var(--gold) 28%,var(--line));background:color-mix(in srgb,var(--surface) 88%,transparent);box-shadow:0 22px 65px rgba(0,0,0,.12);animation:text-rise .65s cubic-bezier(.16,1,.3,1) both}
+.favorites-progress small{color:var(--gold);font-size:9px;font-weight:800;letter-spacing:.18em}.favorites-progress h2{margin:7px 0 0;font:clamp(27px,3vw,40px)/1.05 var(--serif)}.favorites-progress-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px}.favorites-progress-stats article{min-height:100px;display:flex;flex-direction:column;justify-content:center;padding:18px 22px;border-radius:26px;background:var(--surface2)}.favorites-progress-stats b{color:var(--gold);font:38px/1 var(--serif)}.favorites-progress-stats span{margin-top:8px;color:var(--muted);font-size:10px}.favorites-progress label{display:grid;gap:9px;color:var(--muted);font-size:10px}.favorites-progress input{width:100%;min-height:48px;padding:0 15px;border:1px solid var(--line);border-radius:18px;background:var(--surface2);color:var(--text);font:20px var(--serif)}
+.assistant-page{min-height:100svh;background:var(--bg)}.assistant-shell{padding-top:54px;transition:padding .4s cubic-bezier(.16,1,.3,1)}.assistant-shell.conversation-started{padding-top:24px}.assistant-hero{margin-top:12px}.chat-stream{transition:min-height .4s cubic-bezier(.16,1,.3,1)}
+
+@media(max-width:900px){
+  .topbar .theme-trigger{transform:translateX(-7px)}
+  .topbar:has(+ .reader-page.mobile-selecting)::after{display:none!important;content:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+  .reader-page.mobile-selecting{padding-bottom:0!important;min-height:100svh!important}
+  .reader-page.mobile-selecting .reader-rail{height:100svh!important;min-height:0!important;padding-bottom:0!important}
+  .mobile-selecting .rail-surahs>div{padding-bottom:118px!important}
+  .assistant-shell{padding-top:48px}.assistant-shell.conversation-started{padding-top:18px}
+  .favorites-progress{grid-template-columns:1fr;margin-top:42px}.favorites-progress-stats{grid-template-columns:1fr 1fr}
+  .mark-read-button{margin-bottom:30px}
+}
+@media(max-width:520px){.favorites-progress-stats{grid-template-columns:1fr}.favorites-progress{padding:25px 20px}.topbar .theme-trigger{transform:translateX(-9px)}}
