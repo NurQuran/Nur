@@ -534,3 +534,42 @@ html[lang="en"] .study-setting .range-pickers label:nth-child(1)::before{content
 .study-setting .range-pickers select{font-size:12px!important}
 html[lang="en"] .study-setting .study-action::after{content:"Play the range"}html[lang="ar"] .study-setting .study-action::after{content:"تشغيل المقطع"}html[lang="en"] .study-setting .study-action::after,html[lang="ar"] .study-setting .study-action::after{font:700 12px var(--sans)}
 html[lang="en"] .verse-explain::after{content:"✦ Explain"}html[lang="ar"] .verse-explain::after{content:"✦ شرح"}html[lang="en"] .verse-explain::after,html[lang="ar"] .verse-explain::after{font:11px var(--sans)}
+/* 3.4 final reader parity: precise controls, native mobile bar and sacred-text glow */
+.basmala,.surah-closing{position:relative;isolation:isolate;overflow:hidden}
+.basmala::before,.surah-closing::before{content:"";position:absolute;z-index:-1;left:50%;top:50%;width:min(520px,86vw);height:145px;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(ellipse,color-mix(in srgb,var(--gold) 17%,transparent) 0%,color-mix(in srgb,var(--gold) 7%,transparent) 38%,transparent 72%);filter:blur(12px);pointer-events:none}
+.surah-closing::before{height:180px;opacity:.8}
+
+@media(max-width:900px){
+  html{scroll-behavior:smooth}
+  .topbar{position:fixed!important;transform:translate3d(0,0,0)!important;backface-visibility:hidden;will-change:transform;contain:layout paint;transition:transform .52s cubic-bezier(.16,1,.3,1),box-shadow .3s ease!important}
+  .topbar.mobile-hidden{transform:translate3d(0,calc(125% + env(safe-area-inset-bottom)),0)!important}
+  .topbar>.header-actions{position:relative!important;inset:auto!important;pointer-events:none!important;overflow:visible!important}
+  .topbar>.header-actions>*{position:relative!important;inset:auto!important;pointer-events:auto!important}
+  .topbar .theme-trigger,.topbar .settings-trigger{transform:none!important;overflow:hidden!important;touch-action:manipulation}
+  .theme-trigger::before,.theme-trigger::after{pointer-events:none!important}
+
+  .reader-page:not(.mobile-selecting) .reading-area{width:100%!important;max-width:760px!important;margin:0 auto!important;padding:18px 13px 138px!important}
+  .mobile-surah-back{display:flex!important;align-items:center;justify-content:center;width:100%!important;min-height:59px!important;margin:0 0 12px!important;border:1px solid color-mix(in srgb,var(--gold) 46%,var(--line))!important;border-radius:26px!important;background:color-mix(in srgb,var(--surface) 92%,transparent)!important;color:var(--text)!important;font-weight:780!important;box-shadow:inset 0 1px rgba(255,255,255,.025)}
+  .mobile-chapter-nav{display:grid!important;grid-template-columns:1fr 1fr!important;gap:10px!important;margin:0 0 18px!important}
+  .mobile-chapter-nav button{min-height:58px!important;border:1px solid var(--line)!important;border-radius:24px!important;background:var(--surface)!important;color:var(--text)!important;font-weight:720!important}
+  .mobile-chapter-nav button:disabled{opacity:.34}
+  .reading-top{display:grid!important;grid-template-columns:1fr!important;gap:12px!important;margin:0 0 18px!important}
+  .verse-jump{display:grid!important;grid-template-columns:52px minmax(0,1fr) 52px!important;gap:8px!important;width:100%!important}
+  .verse-jump>button{min-height:58px!important;border-radius:21px!important}
+  .verse-jump label{min-height:58px!important;border-radius:21px!important;padding:8px 12px!important}
+  .surah-favorite{width:100%!important;min-height:55px!important;border-radius:999px!important}
+  .chapter-head{display:flex!important;flex-direction:column!important;align-items:center!important;gap:19px!important;margin-top:0!important;padding:45px 10px 32px!important;text-align:center!important;border-top:1px solid var(--line)}
+  .chapter-head>div{text-align:center!important}
+  .chapter-head h1{font-size:clamp(44px,12vw,58px)!important}
+  .chapter-head strong{width:100%;text-align:center!important;font-size:clamp(35px,10vw,48px)!important}
+  .basmala{margin:0 -1px 27px!important;padding:27px 10px!important;font-size:clamp(29px,8.5vw,40px)!important;border-block:1px solid var(--line)!important}
+  .chapter-actions{display:grid!important;grid-template-columns:1fr!important;gap:14px!important;margin:0 0 30px!important}
+  .chapter-actions .play-surah,.chapter-actions .explain-surah{width:100%!important;min-height:62px!important;border-radius:23px!important}
+  .chapter-actions small{grid-column:1!important;text-align:center!important}
+  .surah-closing{margin-top:34px!important;border-radius:34px!important}
+}
+
+@media(max-width:520px){
+  .reader-page:not(.mobile-selecting) .reading-area{padding-inline:7px!important}
+  .topbar>.header-actions{transform:none!important}
+}

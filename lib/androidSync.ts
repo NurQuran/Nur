@@ -23,6 +23,7 @@ type AndroidBridge = {
   clearState?: () => void;
   performHaptic?: (kind: string) => void;
   openOffline?: () => void;
+  openOnline?: () => void;
 };
 
 declare global {
