@@ -15,6 +15,8 @@ export type AndroidSharedState = {
   minutes?: number;
   goal?: number;
   onboarded?: boolean;
+  currentView?: "home" | "read" | "favorites" | "assistant" | "fqih";
+  libraryOpen?: boolean;
 };
 
 type AndroidBridge = {

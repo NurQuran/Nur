@@ -573,3 +573,24 @@ html[lang="en"] .verse-explain::after{content:"✦ Explain"}html[lang="ar"] .ver
   .reader-page:not(.mobile-selecting) .reading-area{padding-inline:7px!important}
   .topbar>.header-actions{transform:none!important}
 }
+
+/* 3.5 release motion and Android-native dock handoff */
+.global-offline-notice.is-online{border-color:color-mix(in srgb,#70b98a 62%,var(--line));animation:final-toast-in .56s cubic-bezier(.16,1,.3,1) both}
+.global-offline-notice.is-online>span{background:#70b98a;box-shadow:0 0 0 5px color-mix(in srgb,#70b98a 14%,transparent),0 0 22px color-mix(in srgb,#70b98a 42%,transparent)}
+.mobile-surah-back,.mobile-chapter-nav,.reading-top,.chapter-head,.basmala,.chapter-actions{animation:final-reader-rise .7s cubic-bezier(.16,1,.3,1) both}
+.mobile-chapter-nav{animation-delay:.05s}.reading-top{animation-delay:.1s}.chapter-head{animation-delay:.16s}.basmala{animation-delay:.22s}.chapter-actions{animation-delay:.28s}
+.mobile-surah-back,.mobile-chapter-nav button,.verse-jump button,.verse-jump label,.surah-favorite,.chapter-actions button{transition:transform .28s cubic-bezier(.16,1,.3,1),background .3s,border-color .3s,box-shadow .3s!important}
+.mobile-surah-back:active,.mobile-chapter-nav button:not(:disabled):active,.verse-jump button:not(:disabled):active,.surah-favorite:active,.chapter-actions button:not(:disabled):active{transform:scale(.975)!important}
+.play-surah{box-shadow:0 16px 45px color-mix(in srgb,var(--gold) 18%,transparent)}
+.basmala::after,.surah-closing::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(105deg,transparent 28%,color-mix(in srgb,var(--gold) 10%,transparent) 48%,transparent 68%);transform:translateX(-110%);animation:sacred-shimmer 5.5s ease-in-out 1.2s infinite;pointer-events:none}
+@keyframes final-reader-rise{from{opacity:0;transform:translateY(18px);filter:blur(5px)}to{opacity:1;transform:none;filter:none}}
+@keyframes final-toast-in{from{opacity:0;transform:translateY(24px) scale(.96);filter:blur(7px)}to{opacity:1;transform:none;filter:none}}
+@keyframes sacred-shimmer{0%,68%{transform:translateX(-110%)}88%,100%{transform:translateX(110%)}}
+
+@media(max-width:900px){
+  .topbar{translate:none!important;opacity:1!important;transition:transform .55s cubic-bezier(.16,1,.3,1),opacity .38s ease,box-shadow .3s ease!important}
+  .topbar.mobile-hidden{translate:none!important;opacity:0!important;transform:translate3d(0,calc(130% + env(safe-area-inset-bottom)),0)!important;pointer-events:none!important}
+  html.nur-native-android .topbar{display:none!important}
+  html.nur-native-android body{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
+}
+@media(prefers-reduced-motion:reduce){.mobile-surah-back,.mobile-chapter-nav,.reading-top,.chapter-head,.basmala,.chapter-actions,.global-offline-notice.is-online,.basmala::after,.surah-closing::after{animation:none!important}}
