@@ -21,6 +21,8 @@ type AndroidBridge = {
   getState?: () => string;
   setState?: (value: string) => void;
   clearState?: () => void;
+  performHaptic?: (kind: string) => void;
+  openOffline?: () => void;
 };
 
 declare global {
