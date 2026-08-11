@@ -518,7 +518,35 @@ html,body{overflow-x:clip}
   .global-offline-notice{left:11px;right:11px;bottom:calc(112px + env(safe-area-inset-bottom));width:auto;border-radius:32px}
   .footer-main{grid-template-columns:1fr}.footer-main nav{justify-self:center}
 }
-@media(max-width:700px){.audio-download-setting{display:grid!important}}
+@media(max-width:700px){html.nur-android-runtime .audio-download-setting{display:grid!important}}
+.android-audio-download{display:none!important}
+html.nur-android-runtime .android-audio-download{display:block!important}
+
+/* Final motion pass: route direction, chapter transitions and animated notices */
+body.nur-route-initial main>section{animation:nur-page-fade .58s cubic-bezier(.16,1,.3,1) both}
+body.nur-route-forward main>section{animation:nur-page-from-right .64s cubic-bezier(.16,1,.3,1) both}
+body.nur-route-back main>section{animation:nur-page-from-left .64s cubic-bezier(.16,1,.3,1) both}
+[dir="rtl"] body.nur-route-forward main>section{animation-name:nur-page-from-left}
+[dir="rtl"] body.nur-route-back main>section{animation-name:nur-page-from-right}
+.reading-area.surah-forward{animation:nur-page-from-right .62s cubic-bezier(.16,1,.3,1) both}
+.reading-area.surah-back{animation:nur-page-from-left .62s cubic-bezier(.16,1,.3,1) both}
+[dir="rtl"] .reading-area.surah-forward{animation-name:nur-page-from-left}
+[dir="rtl"] .reading-area.surah-back{animation-name:nur-page-from-right}
+.connection-toast,.global-offline-notice,.resume-toast{will-change:transform,opacity,filter;animation:nur-notice-spring .58s cubic-bezier(.16,1,.3,1) both!important}
+.connection-toast>span,.global-offline-notice>span,.resume-icon{animation:nur-notice-pulse 2.4s ease-in-out .5s infinite}
+.download-status{animation:nur-status-arrive .42s cubic-bezier(.16,1,.3,1) both}
+@media(min-width:901px){
+  .verse-card,.home-features article,.favorite-grid a,.study-card,.setting-group{transition:transform .36s cubic-bezier(.16,1,.3,1),border-color .3s ease,box-shadow .36s ease,background-color .3s ease}
+  .verse-card:hover,.favorite-grid a:hover,.study-card:hover{transform:translateY(-4px);border-color:color-mix(in srgb,var(--gold) 36%,var(--line));box-shadow:0 22px 60px color-mix(in srgb,#000 18%,transparent)}
+  button,a,select{transition-duration:.28s;transition-timing-function:cubic-bezier(.16,1,.3,1)}
+}
+@keyframes nur-page-fade{from{opacity:0;transform:translateY(10px);filter:blur(4px)}to{opacity:1;transform:none;filter:none}}
+@keyframes nur-page-from-right{from{opacity:0;transform:translateX(clamp(26px,5vw,72px));filter:blur(7px)}to{opacity:1;transform:none;filter:none}}
+@keyframes nur-page-from-left{from{opacity:0;transform:translateX(clamp(-72px,-5vw,-26px));filter:blur(7px)}to{opacity:1;transform:none;filter:none}}
+@keyframes nur-notice-spring{0%{opacity:0;transform:translateY(28px) scale(.93);filter:blur(9px)}72%{opacity:1;transform:translateY(-3px) scale(1.01);filter:blur(0)}100%{opacity:1;transform:none;filter:none}}
+@keyframes nur-notice-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+@keyframes nur-status-arrive{from{opacity:0;transform:translateY(7px);filter:blur(3px)}to{opacity:1;transform:none;filter:none}}
+@media(prefers-reduced-motion:reduce){body[class*="nur-route-"] main>section,.reading-area.surah-forward,.reading-area.surah-back,.connection-toast,.global-offline-notice,.resume-toast,.connection-toast>span,.global-offline-notice>span,.resume-icon,.download-status{animation:none!important}.verse-card,.home-features article,.favorite-grid a,.study-card,.setting-group{transition:none!important}}
 @media(max-width:520px){
   .topbar{height:80px!important;grid-template-columns:minmax(0,1fr) 119px!important}.topbar>.header-actions{width:114px!important;grid-template-columns:54px 54px!important;gap:6px!important;transform:none!important}.topbar .settings-trigger,.topbar .theme-trigger{width:54px!important;height:66px!important;min-height:66px!important}.topbar nav a{min-height:66px!important}
   .language-choice{grid-template-columns:1fr!important}.global-offline-notice{bottom:calc(108px + env(safe-area-inset-bottom))}

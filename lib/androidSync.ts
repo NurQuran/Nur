@@ -26,6 +26,9 @@ type AndroidBridge = {
   performHaptic?: (kind: string) => void;
   openOffline?: () => void;
   openOnline?: () => void;
+  hasAudio?: (key: string) => boolean;
+  downloadAudioPack?: (surah: number, itemsJson: string) => void;
+  deleteAllAudio?: () => void;
 };
 
 declare global {
