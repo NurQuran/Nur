@@ -16,7 +16,7 @@ export default function AppRuntime(){
   const [offline,setOffline]=useState(false);
   const [reconnected,setReconnected]=useState(false);
   useEffect(()=>{
-    document.documentElement.classList.toggle("nur-native-android",!!window.NurAndroid);
+    document.documentElement.classList.remove("nur-native-android");
     const query=new URLSearchParams(location.search);
     if(query.get("reconnected")==="1"){
       setReconnected(true);
