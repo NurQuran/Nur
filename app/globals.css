@@ -558,7 +558,7 @@ html[lang="en"] .verse-explain::after{content:"✦ Explain"}html[lang="ar"] .ver
   .verse-jump>button{min-height:58px!important;border-radius:21px!important}
   .verse-jump label{min-height:58px!important;border-radius:21px!important;padding:8px 12px!important}
   .surah-favorite{width:100%!important;min-height:55px!important;border-radius:999px!important}
-  .chapter-head{display:flex!important;flex-direction:column!important;align-items:center!important;gap:19px!important;margin-top:0!important;padding:45px 10px 32px!important;text-align:center!important;border-top:1px solid var(--line)}
+  .chapter-head{display:flex!important;flex-direction:column!important;align-items:center!important;gap:19px!important;margin-top:0!important;padding:40px 10px 32px!important;text-align:center!important;border-top:0!important}
   .chapter-head>div{text-align:center!important}
   .chapter-head h1{font-size:clamp(44px,12vw,58px)!important}
   .chapter-head strong{width:100%;text-align:center!important;font-size:clamp(35px,10vw,48px)!important}
