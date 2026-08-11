@@ -43,3 +43,19 @@ test("keeps offline audio Android-only and supports both motion directions", asy
   assert.match(css, /nur-page-from-left/);
   assert.match(css, /prefers-reduced-motion:reduce/);
 });
+
+test("dismisses resume reading before read and Fqih routes", async () => {
+  const [resume, runtime, css] = await Promise.all([
+    readFile(new URL("../components/ResumeToast.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../components/AppRuntime.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+  ]);
+  assert.match(resume, /usePathname/);
+  assert.match(resume, /pathname==="\/assistant"/);
+  assert.match(resume, /pathname==="\/read"/);
+  assert.match(resume, /closing/);
+  assert.match(runtime, /nur-route-leave-left/);
+  assert.match(runtime, /nur-route-leave-right/);
+  assert.match(css, /\.assistant-page~\.resume-toast/);
+  assert.match(css, /\.resume-toast\.closing/);
+});

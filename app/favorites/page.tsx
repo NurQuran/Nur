@@ -44,7 +44,7 @@ export default function FavoritesPage() {
 
   return <main><SiteHeader active="favorites"/><section className="favorites-page">
     <p className="eyebrow"><span/> {t("library")} <span/></p><h1>{t("favoriteTitle")}</h1><p>{t("favoriteLead")}</p>
-    {favorites.length?<div className="favorite-grid">{favorites.map(n=>{const s=surahs[n-1];return <a href={`/read?surah=${n}`} key={n}><span>{String(n).padStart(3,"0")}</span><h2>{s.name}</h2><b>{t("open")} →</b></a>})}</div>:<div className="empty"><span>♡</span><h2>{t("none")}</h2><p>{t("noneLead")}</p><a className="primary" href="/read">{t("discover")}</a></div>}
+    {favorites.length?<div className="favorite-grid">{favorites.map((n,index)=>{const s=surahs[n-1];return <a style={{"--list-index":index} as React.CSSProperties} href={`/read?surah=${n}`} key={n}><span>{String(n).padStart(3,"0")}</span><h2>{s.name}</h2><b>{t("open")} →</b></a>})}</div>:<div className="empty"><span>♡</span><h2>{t("none")}</h2><p>{t("noneLead")}</p><a className="primary" href="/read">{t("discover")}</a></div>}
     <section className="favorites-progress" aria-labelledby="progress-title"><div><small>{language==="ar"?"إحصائيات القراءة":language==="en"?"READING STATS":"STATISTIQUES DE LECTURE"}</small><h2 id="progress-title">{progressTitle}</h2></div><div className="favorites-progress-stats"><article><b>{progress.read}</b><span>/114 {readLabel}</span></article><article><b>{Math.floor(progress.minutes)}</b><span>{listeningLabel}</span></article></div><label>{goalLabel}<input type="number" min="1" max="120" value={progress.goal} onChange={event=>updateGoal(Math.max(1,Math.min(120,Number(event.target.value)||1)))}/></label></section>
   </section><SiteFooter/></main>;
 }

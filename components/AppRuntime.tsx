@@ -35,9 +35,24 @@ export default function AppRuntime(){
     }
     const update=()=>{const unavailable=!navigator.onLine;setOffline(unavailable);if(unavailable&&window.NurAndroid?.openOffline)setTimeout(()=>window.NurAndroid?.openOffline?.(),450)};update();
     addEventListener("online",update);addEventListener("offline",update);
+    let navigating=false;
+    const leave=(event:MouseEvent)=>{
+      if(event.defaultPrevented||event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey||navigating)return;
+      const anchor=(event.target as HTMLElement)?.closest<HTMLAnchorElement>("a[href]");
+      if(!anchor||anchor.target||anchor.hasAttribute("download"))return;
+      const destination=new URL(anchor.href,location.href);
+      if(destination.origin!==location.origin||destination.pathname===location.pathname)return;
+      const next=routeOrder[destination.pathname];if(next===undefined)return;
+      event.preventDefault();event.stopPropagation();
+      if(matchMedia("(prefers-reduced-motion: reduce)").matches){location.assign(destination.href);return}
+      navigating=true;
+      document.body.classList.add(next>route?"nur-route-leave-left":"nur-route-leave-right");
+      setTimeout(()=>location.assign(destination.href),260);
+    };
+    document.addEventListener("click",leave,true);
     const press=(event:PointerEvent)=>{if(event.pointerType==="mouse"&&!window.NurAndroid)return;const control=(event.target as HTMLElement)?.closest<HTMLElement>("button,a[href],select,input[type=checkbox],input[type=range]");if(!control||control.hasAttribute("disabled"))return;const warning=control.matches(".danger,.reset-data-button,.offline-clear");const medium=control.matches(".primary,.play-surah,.main-play,.mark-read-button,.download-surah-audio");haptic(warning?"warning":medium?"medium":"selection")};
     document.addEventListener("pointerdown",press,true);
-    return()=>{clearTimeout(routeTimer);removeEventListener("online",update);removeEventListener("offline",update);document.removeEventListener("pointerdown",press,true)};
+    return()=>{clearTimeout(routeTimer);removeEventListener("online",update);removeEventListener("offline",update);document.removeEventListener("click",leave,true);document.removeEventListener("pointerdown",press,true)};
   },[]);
   if(!offline&&!reconnected)return null;
   return <div className={`global-offline-notice${reconnected&&!offline?" is-online":""}`} role="status"><span aria-hidden="true"/><strong>{offline?(language==="ar"?"أنت غير متصل بالإنترنت":language==="en"?"You are offline":"Vous êtes hors ligne"):(language==="ar"?"عاد الاتصال بالإنترنت":language==="en"?"You are back online":"Vous êtes de nouveau en ligne")}</strong><small>{offline?(language==="ar"?"تم تشغيل نسخة القراءة دون اتصال.":language==="en"?"The offline reading version is active.":"La version de lecture hors ligne est active."):(language==="ar"?"تمت استعادة صفحتك وموضع قراءتك.":language==="en"?"Your page and reading position have been restored.":"Votre page et votre position de lecture ont été restaurées.")}</small></div>;
