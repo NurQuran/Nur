@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useLanguage } from "../lib/i18n";
+import { hydrateFromAndroid, patchAndroidState, readAndroidState } from "../lib/androidSync";
 import PwaInstallButton from "./PwaInstallButton";
 
 export default function SiteHeader({ active = "home", onSettings }: { active?: "home" | "read" | "favorites" | "assistant"; onSettings?: () => void }) {
@@ -10,7 +11,8 @@ export default function SiteHeader({ active = "home", onSettings }: { active?: "
   const lastScroll = useRef(0);
   const { t, language } = useLanguage();
   useEffect(() => {
-    const saved = localStorage.getItem("nur-theme") as "light" | "dark" | null;
+    hydrateFromAndroid();
+    const saved = readAndroidState()?.theme || localStorage.getItem("nur-theme") as "light" | "dark" | null;
     const initial = saved || "dark";
     setTheme(initial); document.documentElement.setAttribute("data-theme", initial);
   }, []);
@@ -29,7 +31,7 @@ export default function SiteHeader({ active = "home", onSettings }: { active?: "
   }, [active]);
   function toggleTheme() {
     const next = theme === "dark" ? "light" : "dark";
-    setTheme(next); localStorage.setItem("nur-theme", next); document.documentElement.setAttribute("data-theme", next);
+    setTheme(next); localStorage.setItem("nur-theme", next); patchAndroidState({theme:next}); document.documentElement.setAttribute("data-theme", next);
   }
   return <header className={`topbar${navHidden ? " mobile-hidden" : ""}`}>
     <a className="brand logo-brand" href="/" aria-label={`Nūr · ${t("home")}`}><span className="logo-crop"><img src="/nur-logo.png" alt="Nūr" /></span></a>

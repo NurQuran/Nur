@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import SiteHeader from "../../components/SiteHeader";
 import SiteFooter from "../../components/SiteFooter";
 import { useLanguage } from "../../lib/i18n";
+import { hydrateFromAndroid, patchAndroidState } from "../../lib/androidSync";
 import { surahs } from "../../lib/quran/surahs";
 
 type Progress = { read: number; minutes: number; goal: number };
@@ -15,6 +16,7 @@ export default function FavoritesPage() {
 
   useEffect(()=>{
     try{
+      hydrateFromAndroid();
       const saved=localStorage.getItem("nur-favorite-surahs");
       const stats=localStorage.getItem("nur-progress");
       const completed=localStorage.getItem("nur-read-surahs");
@@ -28,6 +30,7 @@ export default function FavoritesPage() {
     const next={...progress,goal};
     setProgress(next);
     localStorage.setItem("nur-progress",JSON.stringify(next));
+    patchAndroidState({goal,minutes:next.minutes});
     const study=localStorage.getItem("nur-study");
     let current={continuous:false,goal};
     try{if(study)current={...JSON.parse(study),goal}}catch{}

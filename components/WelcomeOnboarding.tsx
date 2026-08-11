@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useLanguage, type Language } from "../lib/i18n";
+import { hydrateFromAndroid, patchAndroidState } from "../lib/androidSync";
 
 const hafsVoices=[
   {id:"ar.alafasy",name:"Mishary Alafasy"},
@@ -26,15 +27,15 @@ export default function WelcomeOnboarding(){
   const [visible,setVisible]=useState(false),[step,setStep]=useState(0),[riwayah,setRiwayah]=useState<"hafs"|"warsh">("hafs"),[voice,setVoice]=useState("ar.alafasy"),[colors,setColors]=useState(false),[theme,setTheme]=useState<"dark"|"light">("dark");
   const text=words[language];
 
-  useEffect(()=>{if(!localStorage.getItem("nur-onboarding-complete")){setVisible(true);document.body.classList.add("onboarding-open")}return()=>document.body.classList.remove("onboarding-open")},[]);
+  useEffect(()=>{const shared=hydrateFromAndroid();if(shared?.language)setLanguage(shared.language);if(shared?.riwayah){setRiwayah(shared.riwayah);setVoice(shared.riwayah==="warsh"?"hicham-lharraz":"ar.alafasy")}if(shared?.theme){setTheme(shared.theme);document.documentElement.setAttribute("data-theme",shared.theme)}setColors(!!shared?.tajweed);if(!shared?.onboarded&&!localStorage.getItem("nur-onboarding-complete")){setVisible(true);document.body.classList.add("onboarding-open")}return()=>document.body.classList.remove("onboarding-open")},[]);
   if(!visible)return null;
 
   function chooseLanguage(next:Language){setLanguage(next)}
-  function chooseRiwayah(next:"hafs"|"warsh"){setRiwayah(next);setVoice(next==="warsh"?"hicham-lharraz":"ar.alafasy");if(next==="warsh")setColors(false)}
-  function chooseTheme(next:"dark"|"light"){setTheme(next);document.documentElement.setAttribute("data-theme",next);localStorage.setItem("nur-theme",next)}
+  function chooseRiwayah(next:"hafs"|"warsh"){setRiwayah(next);setVoice(next==="warsh"?"hicham-lharraz":"ar.alafasy");patchAndroidState({riwayah:next,tajweed:next==="warsh"?false:colors});if(next==="warsh")setColors(false)}
+  function chooseTheme(next:"dark"|"light"){setTheme(next);document.documentElement.setAttribute("data-theme",next);localStorage.setItem("nur-theme",next);patchAndroidState({theme:next})}
   function finish(){
     const settings={riwayah,reciter:voice,fontSize:40,tajweed:riwayah==="hafs"&&colors,showFrench:true,showEnglish:true,showTransliteration:true,playbackRate:1,repeatVerse:false};
-    localStorage.setItem("nur-settings",JSON.stringify(settings));localStorage.setItem("nur-onboarding-complete","1");localStorage.setItem("nur-theme",theme);document.body.classList.remove("onboarding-open");setVisible(false);location.assign("/");
+    localStorage.setItem("nur-settings",JSON.stringify(settings));localStorage.setItem("nur-onboarding-complete","1");localStorage.setItem("nur-theme",theme);patchAndroidState({language,theme,riwayah,tajweed:riwayah==="hafs"&&colors,pronunciation:true,french:true,english:true,fontSize:40,onboarded:true});document.body.classList.remove("onboarding-open");setVisible(false);location.assign("/");
   }
 
   const voices=riwayah==="warsh"?warshVoices:hafsVoices;

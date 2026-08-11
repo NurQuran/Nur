@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import type { ReaderOptions } from "../lib/quran/types";
 import { warshReciters } from "../lib/quran/adapters/alQuranCloud";
 import { useLanguage } from "../lib/i18n";
+import { clearAndroidState } from "../lib/androidSync";
 
 const legends=[{c:"madda_normal",fr:"Prolongation normale",en:"Normal prolongation",ar:"مد طبيعي"},{c:"madda_permissible",fr:"Prolongation permise",en:"Permissible prolongation",ar:"مد جائز"},{c:"madda_necessary",fr:"Prolongation nécessaire",en:"Necessary prolongation",ar:"مد لازم"},{c:"qlq",fr:"Qalqalah",en:"Qalqalah",ar:"قلقلة"},{c:"ghn",fr:"Ghunnah",en:"Ghunnah",ar:"غنة"},{c:"ikhf",fr:"Ikhfāʾ",en:"Ikhfa",ar:"إخفاء"},{c:"iqlb",fr:"Iqlāb",en:"Iqlab",ar:"إقلاب"},{c:"idgh_ghn",fr:"Idghām",en:"Idgham",ar:"إدغام"}];
 const hafsVoices=[{id:"ar.alafasy",name:"Mishary Alafasy"},{id:"ar.husary",name:"Mahmoud Al-Hussary"},{id:"ar.abdurrahmaansudais",name:"Abdurrahman As-Sudais"},{id:"ar.mahermuaiqly",name:"Maher Al-Muaiqly"},{id:"ar.saoodshuraym",name:"Saoud Ash-Shuraym"},{id:"ar.abdulsamad",name:"Abdul Basit Abdus-Samad"},{id:"ar.aymanswoaid",name:"Ayman Sowaid"},{id:"ar.muhammadayyoub",name:"Muhammad Ayyoub"}];
@@ -16,6 +17,7 @@ export default function SettingsModal({value,onChange,onClose,studyPanel,customi
   async function resetAllData(){
     setResetting(true);
     Object.keys(localStorage).filter(key=>key.startsWith("nur-")).forEach(key=>localStorage.removeItem(key));
+    clearAndroidState();
     Object.keys(sessionStorage).filter(key=>key.startsWith("nur-")).forEach(key=>sessionStorage.removeItem(key));
     if("caches" in window){try{const names=await caches.keys();await Promise.all(names.filter(name=>name.startsWith("nur-")).map(name=>caches.delete(name)))}catch{}}
     document.documentElement.setAttribute("data-theme","dark");
