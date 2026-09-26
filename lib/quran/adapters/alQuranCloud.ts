@@ -43,10 +43,10 @@ export const quranApi:QuranDataSource={async getSurah(number:number,options:Read
 
 export const warshReciters=[
   {id:"hicham-lharraz",name:"Hicham El Harraz",server:"https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/",missing:[33]},
-  {id:"omar-qazabri",name:"Omar Al-Qazabri",server:"https://server9.mp3quran.net/omar_warsh/",missing:[]},
-  {id:"koshi",name:"Al-Oyoun Al-Kouchi",server:"https://server11.mp3quran.net/koshi/",missing:[]},
+  {id:"omar-qazabri",name:"Omar Al-Qazabri",server:"https://server9.mp3quran.net/omar_warsh/",missing:[],timingId:80},
+  {id:"koshi",name:"Al-Oyoun Al-Kouchi",server:"https://server11.mp3quran.net/koshi/",missing:[],timingId:16},
   {id:"benkirane",name:"Abdelmoujib Benkirane",server:"https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/",missing:[]},
-  {id:"husr-warsh",name:"Mahmoud Al-Hussary",server:"https://server13.mp3quran.net/husr/Rewayat-Warsh-A-n-Nafi/",missing:[]},
+  {id:"husr-warsh",name:"Mahmoud Al-Hussary",server:"https://server13.mp3quran.net/husr/Rewayat-Warsh-A-n-Nafi/",missing:[],timingId:120},
   {id:"abdulbasit-warsh",name:"Abdul Basit Abdus-Samad",server:"https://server7.mp3quran.net/basit/Rewayat-Warsh-A-n-Nafi/",missing:[]},
   {id:"rachid-belalya",name:"Rachid Belalya",server:"https://server6.mp3quran.net/bl3/Rewayat-Warsh-A-n-Nafi/",missing:[]},
   {id:"ibrahim-dosari",name:"Ibrahim Al-Dosari",server:"https://server10.mp3quran.net/ibrahim_dosri/Rewayat-Warsh-A-n-Nafi/",missing:[]},

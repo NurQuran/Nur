@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useLanguage } from "../lib/i18n";
 import { surahs } from "../lib/quran/surahs";
+import GlobalVerseSearch from "./GlobalVerseSearch";
 
 const searchable = (value: string) => value
   .normalize("NFD")
@@ -10,7 +11,7 @@ const searchable = (value: string) => value
   .toLowerCase()
   .replace(/[-_'’ʻʿ\s]/g, "");
 
-export default function SurahList({ active, onSelect }: { active: number; onSelect: (n: number) => void }) {
+export default function SurahList({ active, onSelect, onVerseSelect, riwayah = "hafs" }: { active: number; onSelect: (n: number) => void; onVerseSelect?: (n: number, verse: number) => void; riwayah?: "hafs" | "warsh" }) {
   const [search, setSearch] = useState("");
   const { t } = useLanguage();
   const results = useMemo(() => {
@@ -21,6 +22,7 @@ export default function SurahList({ active, onSelect }: { active: number; onSele
   return <div className="rail-surahs">
     <h2>{t("choose")}</h2>
     <label>⌕<input value={search} onChange={e => setSearch(e.target.value)} placeholder={t("searchSurah")} /></label>
-    <div>{results.map(s => <button className={active === s.number ? "active" : ""} key={s.number} onClick={() => onSelect(s.number)}><span>{String(s.number).padStart(3, "0")}</span><strong>{s.name}</strong></button>)}</div>
+    {onVerseSelect && <GlobalVerseSearch onSelect={onVerseSelect} riwayah={riwayah}/>}
+    <div>{results.map((s,index) => <button style={{"--list-index":index} as React.CSSProperties} className={active === s.number ? "active" : ""} key={s.number} onClick={() => onSelect(s.number)}><span>{String(s.number).padStart(3, "0")}</span><strong>{s.name}</strong></button>)}</div>
   </div>;
 }

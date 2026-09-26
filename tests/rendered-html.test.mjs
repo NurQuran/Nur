@@ -22,7 +22,8 @@ test("server-renders the Nūr application shell", async () => {
   assert.match(html, /href="\/read"[^>]*>Lire<\/a>/i);
   assert.match(html, /href="\/assistant"[^>]*>Fqih<\/a>/i);
   assert.match(html, /href="\/favorites"[^>]*>Favoris<\/a>/i);
-  assert.match(html, /Nūr a été imaginé et créé par Anas Youbi, 14 ans/i);
+  assert.match(html, /Nūr a été créé par un jeune de 14 ans comme une sadaqa jariya/i);
+  assert.match(html, /Fqih · assistant éducatif/i);
   assert.doesNotMatch(html, /Your site is taking shape|react-loading-skeleton/i);
 });
 
@@ -78,4 +79,21 @@ test("keeps reader controls consistent across mobile, tablet and desktop", async
   assert.match(header, /theme-control-icon/);
   assert.match(icons, /name==="pause"/);
   assert.match(css, /\(min-width:901px\) and \(max-width:1280px\)/);
+});
+
+test("includes local search, word study and reduced-motion preferences", async () => {
+  const [reader, settings, onboarding, sw, css] = await Promise.all([
+    readFile(new URL("../app/read/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../components/SettingsModal.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../components/WelcomeOnboarding.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../public/sw.js", import.meta.url), "utf8"),
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+  ]);
+  assert.match(reader, /GlobalVerseSearch|onVerseSelect/);
+  assert.match(reader, /WordStudy/);
+  assert.match(settings, /BackupControls/);
+  assert.match(settings, /motion-setting/);
+  assert.match(onboarding, /reducedMotionHelp/);
+  assert.match(sw, /\/data\/quran-data\.js/);
+  assert.match(css, /data-motion="reduced"/);
 });
