@@ -34,8 +34,9 @@ export default function WelcomeOnboarding(){
   function chooseRiwayah(next:"hafs"|"warsh"){setRiwayah(next);setVoice(next==="warsh"?"hicham-lharraz":"ar.alafasy");patchAndroidState({riwayah:next,tajweed:next==="warsh"?false:colors});if(next==="warsh")setColors(false)}
   function chooseTheme(next:"dark"|"light"){setTheme(next);document.documentElement.setAttribute("data-theme",next);localStorage.setItem("nur-theme",next);patchAndroidState({theme:next})}
   function finish(){
-    const settings={riwayah,reciter:voice,fontSize:40,tajweed:riwayah==="hafs"&&colors,showFrench:true,showEnglish:true,showTransliteration:true,playbackRate:1,repeatVerse:false};
-    localStorage.setItem("nur-settings",JSON.stringify(settings));localStorage.setItem("nur-onboarding-complete","1");localStorage.setItem("nur-theme",theme);patchAndroidState({language,theme,riwayah,tajweed:riwayah==="hafs"&&colors,pronunciation:true,french:true,english:true,fontSize:40,onboarded:true});document.body.classList.remove("onboarding-open");setVisible(false);location.assign("/");
+    const showFrench=language==="fr",showEnglish=language==="en";
+    const settings={riwayah,reciter:voice,fontSize:40,tajweed:riwayah==="hafs"&&colors,showFrench,showEnglish,showTransliteration:true,playbackRate:1,repeatVerse:false};
+    localStorage.setItem("nur-settings",JSON.stringify(settings));localStorage.removeItem("nur-translation-mode");localStorage.setItem("nur-onboarding-complete","1");localStorage.setItem("nur-theme",theme);patchAndroidState({language,theme,riwayah,tajweed:riwayah==="hafs"&&colors,pronunciation:true,french:showFrench,english:showEnglish,fontSize:40,onboarded:true});document.body.classList.remove("onboarding-open");setVisible(false);location.assign("/");
   }
 
   const voices=riwayah==="warsh"?warshVoices:hafsVoices;

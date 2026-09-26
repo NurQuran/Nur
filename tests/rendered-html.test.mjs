@@ -59,3 +59,23 @@ test("dismisses resume reading before read and Fqih routes", async () => {
   assert.match(css, /\.assistant-page~\.resume-toast/);
   assert.match(css, /\.resume-toast\.closing/);
 });
+
+test("keeps reader controls consistent across mobile, tablet and desktop", async () => {
+  const [reader, settings, onboarding, header, icons, css] = await Promise.all([
+    readFile(new URL("../app/read/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../components/SettingsModal.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../components/WelcomeOnboarding.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../components/SiteHeader.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../components/UiIcon.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+  ]);
+  assert.ok(reader.indexOf('className="chapter-actions"') < reader.indexOf('className="basmala"'));
+  assert.match(reader, /Écouter la sourate en entier/);
+  assert.match(reader, /showFrench:true, showEnglish:false/);
+  assert.match(reader, /nur-translation-mode/);
+  assert.match(settings, /translation-choice/);
+  assert.match(onboarding, /showFrench=language==="fr",showEnglish=language==="en"/);
+  assert.match(header, /theme-control-icon/);
+  assert.match(icons, /name==="pause"/);
+  assert.match(css, /\(min-width:901px\) and \(max-width:1280px\)/);
+});
