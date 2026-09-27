@@ -44,6 +44,6 @@ Les sourates favorites, le thème et les préférences de lecture sont enregistr
 
 ## À propos de Warsh
 
-Le mode Warsh utilise le texte identifié et les enregistrements de [MP3Quran](https://www.mp3quran.net/eng/timing-api). La synchronisation par verset est activée seulement si les minutages récupérés correspondent au nombre et à l’ordre des versets. En l’absence de minutages compatibles, la sourate reste écoutable en entier.
+Le mode Warsh utilise le texte de Quranpedia et les enregistrements de [MP3Quran](https://www.mp3quran.net/eng/timing-api). Les traductions complémentaires ne bloquent plus l’affichage du texte si leur service est momentanément indisponible. La synchronisation par verset est activée seulement si les minutages récupérés correspondent au nombre et à l’ordre des versets. Les autres voix restent écoutables en sourate complète.
 
-Les couleurs de tajwīd Warsh sont dérivées de [quranic-phonemizer](https://github.com/QUD-Technologies/quranic-phonemizer) et alignées sur le [muṣḥaf Warsh de Quranpedia](https://api.quranpedia.net/dumps?lang=en). Le texte affiché reste celui de Quranpedia. Chaque annotation est vérifiée contre le verset exact avant affichage ; 58 versets dont les sources diffèrent trop restent volontairement sans couleurs. Les fichiers générés et leur provenance sont dans `public/data/warsh-tajweed/`.
+Les couleurs de tajwīd sont actuellement réservées à Ḥafṣ. Les annotations Warsh expérimentales restent dans `public/data/warsh-tajweed/` à titre d’archive, mais ne sont pas affichées dans le lecteur.
