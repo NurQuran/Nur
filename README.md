@@ -7,8 +7,8 @@ Application web moderne et responsive pour lire et écouter le Coran en arabe, a
 - page d’accueil et menu moderne regroupant les 114 sourates ;
 - pages séparées pour l’accueil, la lecture et les sourates favorites ;
 - texte arabe RTL, prononciation, français et anglais ;
-- recherche globale des versets et étude mot à mot pour Ḥafṣ, avec sens des mots en anglais ;
-- récitation Ḥafṣ par verset et plusieurs voix Warsh ; lecture par verset Warsh uniquement lorsqu’un minutage compatible est disponible ;
+- étude mot à mot pour Ḥafṣ, avec sens des mots en anglais ;
+- récitation Ḥafṣ par verset et voix Warsh issues du catalogue de minutages de MP3Quran ; la lecture par verset Warsh est proposée quand le minutage de la sourate correspond au texte affiché ;
 - export et import d’une sauvegarde personnelle (favoris, progression et préférences) ;
 - paramètres centraux pour la voix, la taille du texte, le tajwīd et les langues ;
 - audio par verset, recherche, favoris locaux et thèmes clair/sombre ;
@@ -32,7 +32,7 @@ npm run start
 
 ## Données et intégrité du texte
 
-Le connecteur principal se trouve dans `lib/quran/adapters/alQuranCloud.ts`. Il charge les éditions identifiées de [AlQuran Cloud](https://alquran.cloud/api) lorsque le réseau est disponible. Le corpus local utilisé pour la recherche est dans `public/data/quran-data.js`. Les préférences sont enregistrées sur l’appareil.
+Le connecteur principal se trouve dans `lib/quran/adapters/alQuranCloud.ts`. Il charge les éditions identifiées de [AlQuran Cloud](https://alquran.cloud/api) lorsque le réseau est disponible. Les préférences sont enregistrées sur l’appareil.
 
 Le fichier `lib/quran/demo.ts` ne contient qu’un petit échantillon hors ligne, clairement signalé dans l’interface. Il sert à montrer l’application lorsque l’API n’est pas joignable. L’application ne génère jamais de texte coranique.
 

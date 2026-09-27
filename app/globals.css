@@ -709,7 +709,57 @@ html[data-motion="reduced"] .topbar nav::before{transition:none!important}
 @media(prefers-reduced-motion:reduce){.topbar nav::before{transition:none!important}}
 
 /* Local Quran search, word study, and harmonized touch controls. */
-.rail-surahs>.global-verse-search{flex:none;overflow:visible;margin-top:9px}.global-verse-search>label{display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--line);border-radius:18px;background:var(--surface2);color:var(--muted)}.global-verse-search input{width:100%;min-width:0;border:0;outline:0;background:transparent;color:var(--text);font-size:12px}.global-verse-results{max-height:min(52vh,520px);overflow:auto;padding:7px 0}.global-verse-results>small{display:block;margin:5px 9px 10px;color:var(--gold);font-size:11px}.rail-surahs .global-verse-results button{display:grid;grid-template-columns:1fr;gap:5px;width:100%;margin-bottom:7px;padding:11px;border:1px solid var(--line);border-radius:18px;background:var(--surface);text-align:start}.global-verse-results button b{color:var(--text);font:22px/1.5 "Traditional Arabic",serif;text-align:end}.global-verse-results button small{color:var(--muted);font:12px/1.4 var(--serif)}.rail-surahs:has(.global-verse-results)>div:last-child{display:none}.word-study{margin:16px 0 0;padding:15px;border:1px solid var(--line);border-radius:24px;background:var(--surface2)}.word-study summary{color:var(--gold);font-size:12px;font-weight:750;cursor:pointer}.word-study>div{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;margin:15px 0}.word-chip{display:grid;gap:3px;min-width:100px;max-width:180px;padding:10px;border:1px solid var(--line);border-radius:17px;text-align:center}.word-chip strong{font:26px/1.4 "Traditional Arabic",serif}.word-chip span{color:var(--gold);font-size:10px}.word-chip small,.word-study>p{color:var(--muted);font-size:10px}.backup-actions{display:flex;gap:10px}.backup-actions button{min-height:45px;padding:0 18px;border:1px solid var(--line);border-radius:999px;background:var(--surface2);color:var(--text);cursor:pointer}.backup-setting small{display:block;margin-top:8px;color:var(--gold)}.fqih-nav-icon{display:inline-block;width:17px;height:17px;margin-right:6px;vertical-align:-3px}.ai-mark img{width:35px;height:35px;object-fit:contain}
+.word-study{margin:16px 0 0;padding:15px;border:1px solid var(--line);border-radius:24px;background:var(--surface2)}.word-study summary{color:var(--gold);font-size:12px;font-weight:750;cursor:pointer}.word-study>div{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;margin:15px 0}.word-chip{display:grid;gap:3px;min-width:100px;max-width:180px;padding:10px;border:1px solid var(--line);border-radius:17px;text-align:center}.word-chip strong{font:26px/1.4 "Traditional Arabic",serif}.word-chip span{color:var(--gold);font-size:10px}.word-chip small,.word-study>p{color:var(--muted);font-size:10px}.backup-actions{display:flex;gap:10px}.backup-actions button{min-height:45px;padding:0 18px;border:1px solid var(--line);border-radius:999px;background:var(--surface2);color:var(--text);cursor:pointer}.backup-setting small{display:block;margin-top:8px;color:var(--gold)}.fqih-nav-icon{display:inline-block;width:17px;height:17px;margin-right:6px;vertical-align:-3px}.ai-mark img{width:35px;height:35px;object-fit:contain}
 @media(max-width:900px) and (orientation:portrait){
-  .mobile-chapter-nav{gap:6px!important;margin-bottom:6px!important}.mobile-chapter-nav button{min-height:48px!important;padding:0 7px!important;border-radius:22px!important;font-size:12px!important}.reading-top{gap:5px!important;margin-bottom:6px!important;padding-bottom:7px!important}.verse-jump{grid-template-columns:42px minmax(0,1fr) 42px!important;gap:5px!important}.verse-jump>button,.verse-jump label{min-height:48px!important}.verse-jump label{padding:5px 8px!important}.verse-jump select{padding:9px 6px!important}.surah-favorite{min-height:47px!important}.chapter-actions .play-surah,.chapter-actions .explain-surah{border-radius:36px!important}.assistant-shell:not(.conversation-started){padding-top:20px!important}.assistant-shell:not(.conversation-started) .assistant-hero{display:none}.assistant-shell:not(.conversation-started) .ai-disclaimer{margin:0 0 8px;padding:10px 14px}.assistant-shell:not(.conversation-started) .chat-stream{min-height:calc(100svh - 280px);padding:8px 0 22px}.favorites-page>.empty{margin:20px auto 10px;padding:28px 18px!important}.favorites-page>.empty .primary{border-radius:999px!important}.favorites-progress{margin-top:20px!important}.mobile-selecting .rail-surahs>.global-verse-search{width:calc(100% - 16px);margin-inline:auto}.mobile-selecting .global-verse-results{max-height:calc(100svh - 250px)}
+  .mobile-chapter-nav{gap:6px!important;margin-bottom:6px!important}.mobile-chapter-nav button{min-height:48px!important;padding:0 7px!important;border-radius:22px!important;font-size:12px!important}.reading-top{gap:5px!important;margin-bottom:6px!important;padding-bottom:7px!important}.verse-jump{grid-template-columns:42px minmax(0,1fr) 42px!important;gap:5px!important}.verse-jump>button,.verse-jump label{min-height:48px!important}.verse-jump label{padding:5px 8px!important}.verse-jump select{padding:9px 6px!important}.surah-favorite{min-height:47px!important}.chapter-actions .play-surah,.chapter-actions .explain-surah{border-radius:36px!important}.assistant-shell:not(.conversation-started){padding-top:20px!important}.assistant-shell:not(.conversation-started) .assistant-hero{display:none}.assistant-shell:not(.conversation-started) .ai-disclaimer{margin:0 0 8px;padding:10px 14px}.assistant-shell:not(.conversation-started) .chat-stream{min-height:calc(100svh - 280px);padding:8px 0 22px}.favorites-page>.empty{margin:20px auto 10px;padding:28px 18px!important}.favorites-page>.empty .primary{border-radius:999px!important}.favorites-progress{margin-top:20px!important}
+}
+
+/* Final navigation: one measured pill that can travel between any two tabs. */
+@media(max-width:700px), (min-width:701px) and (max-width:1280px) and (orientation:portrait){
+  .topbar{translate:none!important;transform:translate3d(0,0,0)!important;transition:transform .55s cubic-bezier(.16,1,.3,1),opacity .4s ease,box-shadow .3s ease!important}
+  .topbar.mobile-hidden{translate:none!important;transform:translate3d(0,calc(100% + 32px + env(safe-area-inset-bottom)),0)!important;opacity:0!important;pointer-events:none!important}
+  .topbar{grid-template-columns:minmax(0,1fr) 76px!important;gap:8px!important}
+  .topbar>.header-actions{width:76px!important;display:grid!important;grid-template-columns:1fr!important;gap:0!important;justify-self:end!important}
+  .topbar .theme-trigger{display:none!important}
+  .topbar .settings-trigger{width:100%!important;height:66px!important;min-height:66px!important;border-radius:999px!important;display:grid!important;place-items:center!important;margin:0!important}
+  .topbar nav{position:relative!important;isolation:isolate!important;border:0!important}
+  .topbar nav::before{content:""!important;display:block!important;position:absolute!important;inset-block:0!important;left:0!important;right:auto!important;width:var(--nav-width,25%)!important;border-radius:999px!important;background:var(--gold)!important;transform:translate3d(var(--nav-x,0px),0,0)!important;animation:none!important;transition:none!important}
+  .topbar nav.nav-ready::before{transition:transform .56s cubic-bezier(.16,1,.3,1),width .56s cubic-bezier(.16,1,.3,1)!important}
+  .topbar nav a.active{color:#071912!important}
+  .topbar nav a.active::after{display:none!important;content:none!important}
+}
+@media(max-width:520px){
+  .topbar{grid-template-columns:minmax(0,1fr) 78px!important}
+  .topbar>.header-actions{width:78px!important}
+  .topbar .settings-trigger{height:64px!important;min-height:64px!important}
+}
+@media(min-width:1281px), (min-width:701px) and (orientation:landscape){
+  .topbar nav{position:relative!important;isolation:isolate;align-items:center}
+  .topbar nav::before{content:"";display:block!important;position:absolute;inset-block:5px;left:0;width:var(--nav-width,60px);border:1px solid color-mix(in srgb,var(--gold) 38%,var(--line));border-radius:999px;background:color-mix(in srgb,var(--gold) 11%,transparent);transform:translate3d(var(--nav-x,0px),0,0);transition:none}
+  .topbar nav.nav-ready::before{transition:transform .56s cubic-bezier(.16,1,.3,1),width .56s cubic-bezier(.16,1,.3,1)}
+  .topbar nav a{z-index:1;padding-inline:12px!important}
+  .topbar nav a.active::after{display:none!important;content:none!important}
+}
+@media(prefers-reduced-motion:reduce){
+  .topbar,.topbar nav.nav-ready::before{transition:none!important}
+}
+html[data-motion="reduced"] .topbar,html[data-motion="reduced"] .topbar nav.nav-ready::before{transition:none!important}
+
+/* Clear interaction states without clipping the surah cards. */
+.rail-surahs>div:last-child{padding-inline:8px}
+.rail-surahs>div:last-child>button{position:relative;border:1px solid var(--line)!important;border-radius:22px!important;transform-origin:center;transition:transform .34s cubic-bezier(.16,1,.3,1),border-color .25s ease,background .25s ease,box-shadow .3s ease!important}
+.rail-surahs>div:last-child>button.active{border-color:color-mix(in srgb,var(--gold) 68%,var(--line))!important;background:color-mix(in srgb,var(--gold) 8%,var(--surface))!important;box-shadow:0 8px 24px rgba(0,0,0,.1)!important}
+.rail-surahs>div:last-child>button:hover,.rail-surahs>div:last-child>button:focus-visible{z-index:1;transform:scale(1.025)!important;border-color:var(--gold)!important;outline:1px solid var(--gold);outline-offset:0;box-shadow:0 14px 30px rgba(0,0,0,.18),0 0 0 2px color-mix(in srgb,var(--gold) 17%,transparent)!important}
+[dir="rtl"] .rail-surahs>div:last-child>button:hover,[dir="rtl"] .rail-surahs>div:last-child>button:focus-visible{transform:scale(1.025)!important}
+.assistant-hero .ai-mark{background:#11271f!important;border:1px solid #d9b96e;color:#d9b96e;box-shadow:0 14px 38px rgba(0,0,0,.18),inset 0 1px rgba(255,255,255,.08)}
+.assistant-hero .ai-mark img{width:35px;height:35px;filter:drop-shadow(0 0 8px rgba(217,185,110,.25))}
+.appearance-choice button{display:flex;align-items:center;justify-content:center;gap:9px;border-radius:18px!important}
+.appearance-choice .ui-icon,.appearance-setting .setting-icon .ui-icon{width:20px;height:20px}
+@media(prefers-reduced-motion:reduce){.rail-surahs>div:last-child>button{transition:none!important}.rail-surahs>div:last-child>button:hover{transform:none!important}}
+html[data-motion="reduced"] .rail-surahs>div:last-child>button:hover{transform:none!important}
+
+/* Keep the measured indicator aligned in Arabic and with reduced motion. */
+@media(max-width:700px), (min-width:701px) and (max-width:1280px) and (orientation:portrait){
+  [dir="rtl"] .topbar nav::before{left:0!important;right:auto!important}
+  html[data-motion="reduced"] .topbar nav::before{transform:translate3d(var(--nav-x,0px),0,0)!important}
 }

@@ -81,19 +81,39 @@ test("keeps reader controls consistent across mobile, tablet and desktop", async
   assert.match(css, /\(min-width:901px\) and \(max-width:1280px\)/);
 });
 
-test("includes local search, word study and reduced-motion preferences", async () => {
-  const [reader, settings, onboarding, sw, css] = await Promise.all([
+test("keeps word study, backups, appearance and reduced-motion preferences", async () => {
+  const [reader, settings, onboarding, sw, css, header] = await Promise.all([
     readFile(new URL("../app/read/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../components/SettingsModal.tsx", import.meta.url), "utf8"),
     readFile(new URL("../components/WelcomeOnboarding.tsx", import.meta.url), "utf8"),
     readFile(new URL("../public/sw.js", import.meta.url), "utf8"),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+    readFile(new URL("../components/SiteHeader.tsx", import.meta.url), "utf8"),
   ]);
-  assert.match(reader, /GlobalVerseSearch|onVerseSelect/);
+  assert.doesNotMatch(reader, /GlobalVerseSearch|onVerseSelect/);
   assert.match(reader, /WordStudy/);
   assert.match(settings, /BackupControls/);
+  assert.match(settings, /ThemePreference/);
   assert.match(settings, /motion-setting/);
   assert.match(onboarding, /reducedMotionHelp/);
-  assert.match(sw, /\/data\/quran-data\.js/);
+  assert.doesNotMatch(sw, /\/data\/quran-data\.js/);
+  assert.match(sw, /\/data\/word-data\.js/);
+  assert.match(header, /--nav-x/);
   assert.match(css, /data-motion="reduced"/);
+});
+
+test("offers timed Warsh reciters and a clean four-tab mobile navigation", async () => {
+  const [adapter, header, css] = await Promise.all([
+    readFile(new URL("../lib/quran/adapters/alQuranCloud.ts", import.meta.url), "utf8"),
+    readFile(new URL("../components/SiteHeader.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+  ]);
+  const voices = adapter.match(/export const warshReciters=\[([\s\S]*?)\] as const;/)?.[1] ?? "";
+  assert.equal((voices.match(/\{id:/g) ?? []).length, 4);
+  assert.equal((voices.match(/timingId:\d+/g) ?? []).length, 4);
+  assert.doesNotMatch(voices, /hicham-lharraz|benkirane|abdulbasit-warsh/);
+  assert.match(header, /home:0,read:1,assistant:2,favorites:3/);
+  assert.match(header, /--nav-x/);
+  assert.match(css, /\.topbar nav a\.active::after\{display:none!important;content:none!important\}/);
+  assert.match(css, /\.topbar\.mobile-hidden\{translate:none!important;transform:translate3d/);
 });
