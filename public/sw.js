@@ -1,4 +1,4 @@
-const SHELL = "nur-shell-v23";
+const SHELL = "nur-shell-v24";
 const CONTENT = "nur-content-v1";
 const OFFLINE_SHELL = ["/", "/read", "/favorites", "/assistant", "/manifest.webmanifest", "/nur-logo.png", "/icons/nur-180.png", "/icons/nur-192.png", "/icons/nur-512.png", "/icons/nur-app-rounded-1024.png", "/data/word-data.js", "/icons/ui/fqih.svg"];
 
