@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
+import vm from "node:vm";
 
 async function render(path = "/") {
   const workerUrl = new URL("../dist/server/index.js", import.meta.url);
@@ -100,6 +101,74 @@ test("keeps word study, backups, appearance and reduced-motion preferences", asy
   assert.match(sw, /\/data\/word-data\.js/);
   assert.match(header, /--nav-x/);
   assert.match(css, /data-motion="reduced"/);
+});
+
+test("avoids mixed service-worker versions and limits long-surah work", async () => {
+  const [reader, api, sw, install] = await Promise.all([
+    readFile(new URL("../app/read/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../lib/quran/adapters/alQuranCloud.ts", import.meta.url), "utf8"),
+    readFile(new URL("../public/sw.js", import.meta.url), "utf8"),
+    readFile(new URL("../components/PwaInstallButton.tsx", import.meta.url), "utf8"),
+  ]);
+  assert.doesNotMatch(sw, /self\.skipWaiting\(|self\.clients\.claim\(/);
+  assert.doesNotMatch(install, /registration\.update\(/);
+  assert.doesNotMatch(reader, /registration\.update\(/);
+  assert.match(sw, /event\.request\.mode === "navigate"/);
+  assert.match(sw, /new Request\(url\.origin \+ url\.pathname\)/);
+  assert.match(reader, /surah\.verses\.slice\(0,visibleCount\)/);
+  assert.match(reader, /loadAbort\.current\?\.abort\(\)/);
+  assert.match(api, /new Set\(\[arabic/);
+  assert.doesNotMatch(reader, /go\(number\+1\);setTimeout\(\(\)=>location\.assign/);
+});
+
+test("reduced motion removes animations, transitions and animated scrolling", async () => {
+  const [css, motion, runtime, settings] = await Promise.all([
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+    readFile(new URL("../lib/motion.ts", import.meta.url), "utf8"),
+    readFile(new URL("../components/AppRuntime.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../components/SettingsModal.tsx", import.meta.url), "utf8"),
+  ]);
+  assert.match(css, /html\[data-motion="reduced"\]:not\(#nur-motion-override\) \*,/);
+  assert.match(css, /animation:none!important;\s*transition:none!important;\s*scroll-behavior:auto!important/);
+  assert.match(motion, /return motionReduced\(\) \? "auto" : "smooth"/);
+  assert.match(runtime, /if\(motionReduced\(\)\)/);
+  assert.match(settings, /if\(motionReduced\(\)\)\{onClose\(\);return\}/);
+});
+
+test("service worker caches one reader shell per path without intercepting audio", async () => {
+  const source = await readFile(new URL("../public/sw.js", import.meta.url), "utf8");
+  const handlers = new Map();
+  const entries = new Map();
+  const keyOf = request => typeof request === "string" ? request : request.url;
+  const caches = {
+    open: async () => ({ put: async (request, response) => entries.set(keyOf(request), response) }),
+    match: async request => entries.get(keyOf(request)),
+    keys: async () => [],
+  };
+  vm.runInNewContext(source, {
+    self: { location: { origin: "https://nur.example" }, addEventListener: (name, fn) => handlers.set(name, fn) },
+    caches, fetch: async () => new Response("reader", { status: 200 }),
+    Promise, Request, Response, URL,
+  });
+  async function visit(url, mode = "navigate") {
+    const lifecycle = [];
+    let response;
+    handlers.get("fetch")({
+      request: { method: "GET", url, mode, destination: "" },
+      respondWith: task => { response = task },
+      waitUntil: task => lifecycle.push(task),
+    });
+    if (!response) return false;
+    assert.equal(lifecycle.length, 1);
+    await response;
+    await Promise.all(lifecycle);
+    return true;
+  }
+  assert.equal(await visit("https://nur.example/read?surah=2"), true);
+  assert.equal(await visit("https://nur.example/read?surah=3"), true);
+  assert.equal(entries.size, 1);
+  assert.ok(entries.has("https://nur.example/read"));
+  assert.equal(await visit("https://server9.mp3quran.net/001.mp3", "cors"), false);
 });
 
 test("offers timed Warsh reciters and a clean four-tab mobile navigation", async () => {

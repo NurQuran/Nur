@@ -763,3 +763,28 @@ html[data-motion="reduced"] .rail-surahs>div:last-child>button:hover{transform:n
   [dir="rtl"] .topbar nav::before{left:0!important;right:auto!important}
   html[data-motion="reduced"] .topbar nav::before{transform:translate3d(var(--nav-x,0px),0,0)!important}
 }
+
+/* The chosen low-motion mode wins over older, more specific animation rules. */
+.verse-load-more{height:2px;pointer-events:none}
+html[data-motion="reduced"]{scroll-behavior:auto!important}
+html[data-motion="reduced"]:not(#nur-motion-override) *,
+html[data-motion="reduced"]:not(#nur-motion-override) *::before,
+html[data-motion="reduced"]:not(#nur-motion-override) *::after{
+  animation:none!important;
+  transition:none!important;
+  scroll-behavior:auto!important;
+  view-transition-name:none!important;
+}
+html[data-motion="reduced"] .setting-group,
+html[data-motion="reduced"] .picker-menu a,
+html[data-motion="reduced"] .customize-tab .study-card,
+html[data-motion="reduced"] .customize-tab .study-card>*,
+html[data-motion="reduced"] .customize-tab .progress-numbers span{opacity:1!important}
+html[data-motion="reduced"] .rail-surahs>div:last-child>button:hover,
+html[data-motion="reduced"] .rail-surahs>div:last-child>button:focus-visible,
+html[data-motion="reduced"] .theme-trigger:active,
+html[data-motion="reduced"] .settings-trigger:active{transform:none!important}
+@media(prefers-reduced-motion:reduce){
+  html:not(#nur-motion-override) *,html:not(#nur-motion-override) *::before,html:not(#nur-motion-override) *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+  .setting-group,.picker-menu a,.customize-tab .study-card,.customize-tab .study-card>*,.customize-tab .progress-numbers span{opacity:1!important}
+}

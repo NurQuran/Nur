@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useLanguage } from "../lib/i18n";
+import { motionReduced } from "../lib/motion";
 
 function haptic(kind:string){
   try{
@@ -20,11 +21,12 @@ export default function AppRuntime(){
     document.documentElement.classList.toggle("nur-android-runtime",!!window.NurAndroid);
     const routeOrder:Record<string,number>={"/":0,"/read":1,"/assistant":2,"/favorites":3};
     const route=routeOrder[location.pathname]??0;
-    const previous=Number(sessionStorage.getItem("nur-route-index"));
+    let previous=route;
+    try{previous=Number(sessionStorage.getItem("nur-route-index"))}catch{}
     const direction=Number.isFinite(previous)&&previous!==route?(route>previous?"forward":"back"):"initial";
     const routeClass=`nur-route-${direction}`;
     document.body.classList.add(routeClass);
-    sessionStorage.setItem("nur-route-index",String(route));
+    try{sessionStorage.setItem("nur-route-index",String(route))}catch{}
     const routeTimer=setTimeout(()=>document.body.classList.remove(routeClass),900);
     const query=new URLSearchParams(location.search);
     if(query.get("reconnected")==="1"){
@@ -44,7 +46,7 @@ export default function AppRuntime(){
       if(destination.origin!==location.origin||destination.pathname===location.pathname)return;
       const next=routeOrder[destination.pathname];if(next===undefined)return;
       event.preventDefault();event.stopPropagation();
-      if(matchMedia("(prefers-reduced-motion: reduce)").matches){location.assign(destination.href);return}
+      if(motionReduced()){location.assign(destination.href);return}
       navigating=true;
       document.body.classList.add(next>route?"nur-route-leave-left":"nur-route-leave-right");
       setTimeout(()=>location.assign(destination.href),260);

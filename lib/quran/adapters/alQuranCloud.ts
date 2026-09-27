@@ -18,10 +18,10 @@ function stripLeadingBasmala(value:string){
   return value.slice(cut).replace(/^(?:[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06EDـ\s]+|<\/[^>]+>)*/,"").trimStart();
 }
 
-export const quranApi:QuranDataSource={async getSurah(number:number,options:ReaderOptions):Promise<QuranSurah>{
+export const quranApi:QuranDataSource={async getSurah(number:number,options:ReaderOptions,signal?:AbortSignal):Promise<QuranSurah>{
   const arabic=options.tajweed?"quran-tajweed":"quran-uthmani";
-  const editions=[arabic,"quran-uthmani","en.asad","fr.hamidullah","en.transliteration",options.riwayah==="hafs"?options.reciter:"ar.alafasy"].join(",");
-  const response=await fetch(`https://api.alquran.cloud/v1/surah/${number}/editions/${editions}`);
+  const editions=[...new Set([arabic,"quran-uthmani","en.asad","fr.hamidullah","en.transliteration",options.riwayah==="hafs"?options.reciter:"ar.alafasy"])].join(",");
+  const response=await fetch(`https://api.alquran.cloud/v1/surah/${number}/editions/${editions}`,{signal});
   if(!response.ok)throw new Error(`Quran API ${response.status}`);
   const json=await response.json() as {code:number;data:Edition[]};
   if(json.code!==200||!Array.isArray(json.data))throw new Error("Réponse invalide");
@@ -31,7 +31,7 @@ export const quranApi:QuranDataSource={async getSurah(number:number,options:Read
   ar.ayahs.forEach(ayah=>{ayah.text=stripLeadingBasmala(ayah.text)});
 
   if(options.riwayah==="warsh"){
-    const warshResponse=await fetch(`/api/warsh/${number}`);
+    const warshResponse=await fetch(`/api/warsh/${number}`,{signal});
     if(!warshResponse.ok)throw new Error(`Warsh API ${warshResponse.status}`);
     const warsh=(await warshResponse.json() as WarshAyah[]).map(ayah=>({...ayah,text:stripLeadingBasmala(ayah.text)}));
     return {number,nameArabic:ar.name,nameLatin:ar.englishName,revelationType:ar.revelationType==="Meccan"?"Mecquoise":"Médinoise",sourceLabel:"Quranpedia · Muṣḥaf Warsh",verses:warsh.map(ayah=>{const hafsNumber=ayah.number_in_hafs?.[0]||ayah.number;const i=number===1?Math.min(6,ayah.number):Math.max(0,hafsNumber-1);return{number:ayah.number,arabic:ayah.text,transliteration:tr?.ayahs[i]?.text||"Prononciation indisponible",fr:fr.ayahs[i]?.text||"",en:en.ayahs[i]?.text||"",juz:ar.ayahs[i]?.juz,page:ayah.page_number||ar.ayahs[i]?.page,hizbQuarter:ar.ayahs[i]?.hizbQuarter}})};

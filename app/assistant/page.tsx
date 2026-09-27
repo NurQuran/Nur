@@ -5,6 +5,7 @@ import SiteHeader from "../../components/SiteHeader";
 import MarkdownMessage from "../../components/MarkdownMessage";
 import { useLanguage } from "../../lib/i18n";
 import { surahs } from "../../lib/quran/surahs";
+import { scrollMotion } from "../../lib/motion";
 
 type Message = { role: "user" | "assistant"; content: string; attachmentLabel?: string };
 type Attachment = { label: string; context: string };
@@ -24,7 +25,7 @@ export default function AssistantPage() {
   useEffect(()=>{
     try { const saved=sessionStorage.getItem("nur-ai-attachment"); if(saved){const parsed=JSON.parse(saved) as Attachment;setAttachment(parsed);sessionStorage.removeItem("nur-ai-attachment");const params=new URLSearchParams(location.search);if(params.get("auto")==="explain"&&!autoSent.current){autoSent.current=true;const prompt=language==="ar"?"اشرح هذا المقطع وسياقه وأهم معانيه مع مراعاة ضوابط التفسير.":language==="en"?"Explain this passage, its context and main lessons, while noting the limits of interpretation.":"Explique-moi ce passage, son contexte et ses enseignements principaux, avec les précautions d’interprétation.";setTimeout(()=>void send(prompt,parsed),250)}} } catch {}
   },[language]);
-  useEffect(()=>{if(messages.length||loading)requestAnimationFrame(()=>end.current?.scrollIntoView({behavior:"smooth",block:"nearest"}))},[messages,loading]);
+  useEffect(()=>{if(messages.length||loading)requestAnimationFrame(()=>end.current?.scrollIntoView({behavior:scrollMotion(),block:"nearest"}))},[messages,loading]);
 
   async function attachSurah(){
     setError(""); setLoading(true);
@@ -68,7 +69,7 @@ export default function AssistantPage() {
   }
   function submit(e:FormEvent){e.preventDefault();void send()}
   function handleKeyDown(e:KeyboardEvent<HTMLTextAreaElement>){if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();void send()}}
-  function openPicker(){setPickerOpen(v=>!v);requestAnimationFrame(()=>{composer.current?.scrollIntoView({behavior:"smooth",block:"center"});setTimeout(()=>window.scrollBy({top:Math.min(220,innerHeight*.24),behavior:"smooth"}),180)})}
+  function openPicker(){setPickerOpen(v=>!v);requestAnimationFrame(()=>{composer.current?.scrollIntoView({behavior:scrollMotion(),block:"center"});setTimeout(()=>window.scrollBy({top:Math.min(220,innerHeight*.24),behavior:scrollMotion()}),180)})}
 
   return <main className="assistant-page"><SiteHeader active="assistant"/><section className={`assistant-shell${messages.length?" conversation-started":""}`}>
     {!messages.length&&<><header className="assistant-hero"><span className="ai-mark" aria-hidden="true"><img src="/icons/ui/fqih.svg" alt=""/></span><div><small>{t("fqihEyebrow")}</small><h1>Fqih</h1><p>{t("fqihLead")}</p></div></header>
