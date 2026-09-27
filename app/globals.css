@@ -840,3 +840,25 @@ html[data-motion="reduced"] .topbar nav::before{transform:translate3d(var(--nav-
   .reader-page.mobile-selecting .rail-surahs>div>button{min-height:66px!important;margin-bottom:13px!important;padding:12px 16px!important}
   .reader-page.mobile-selecting .rail-surahs>div>button strong{font-size:17px}
 }
+
+/* Never paint the default Home pill before the saved tab is measured. */
+.topbar nav:not(.nav-measured)::before{opacity:0!important}
+
+/* A chapter transition must not reveal the previous chapter's heading/actions. */
+.reading-area[data-surah-ready="false"] .reading-top,
+.reading-area[data-surah-ready="false"] .chapter-head,
+.reading-area[data-surah-ready="false"] .chapter-actions,
+.reading-area[data-surah-ready="false"] .basmala,
+.reading-area[data-surah-ready="false"] .verse-stack,
+.reading-area[data-surah-ready="false"] .surah-closing,
+.reading-area[data-surah-ready="false"] .empty,
+.reading-area[data-surah-ready="false"] .mark-read-button{display:none!important}
+
+/* Compact laptop viewports, without changing spacious desktop layouts. */
+@media(min-width:1000px) and (max-height:800px){
+  .home-hero{min-height:calc(100svh - 76px);justify-content:flex-start;padding:clamp(20px,4svh,36px) 20px 34px}
+  .home-hero h1{font-size:clamp(62px,6.4vw,88px);margin:12px 0 8px}
+  .home-hero .lede{margin:8px auto 18px;font-size:18px;line-height:1.45}
+  .home-hero .picker{margin-top:0}
+  .home-hero .quiet-link{margin-top:12px}
+}

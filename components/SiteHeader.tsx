@@ -44,6 +44,8 @@ export default function SiteHeader({ active = "home", onSettings }: { active?: "
     };
     nav.classList.remove("nav-ready");
     setIndicator(start);
+    // Never paint the CSS fallback at Home before the saved tab is measured.
+    nav.classList.add("nav-measured");
     void nav.offsetWidth;
     try{sessionStorage.setItem("nur-last-nav-position",String(target))}catch{}
     if(motionReduced()){setIndicator(target);nav.classList.add("nav-ready")}

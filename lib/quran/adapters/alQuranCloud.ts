@@ -1,5 +1,5 @@
 import type { QuranDataSource, QuranSurah, ReaderOptions } from "../types";
-import { renderWarshTajweed, type WarshTajweedData } from "../warshTajweed";
+import { surahNames } from "../surahs";
 
 type Edition = { edition:{identifier:string}; name:string; englishName:string; revelationType:string; ayahs:{numberInSurah:number;text:string;audio?:string;juz?:number;page?:number;hizbQuarter?:number}[] };
 type WarshAyah = { number:number; text:string; number_in_hafs?:number[]; page_number?:number };
@@ -20,6 +20,23 @@ function stripLeadingBasmala(value:string){
 }
 
 export const quranApi:QuranDataSource={async getSurah(number:number,options:ReaderOptions,signal?:AbortSignal):Promise<QuranSurah>{
+  if(options.riwayah==="warsh"){
+    const response=await fetch(`/api/warsh/${number}`,{signal});
+    if(!response.ok)throw new Error(`Warsh API ${response.status}`);
+    const warsh=(await response.json() as WarshAyah[]).map(ayah=>({...ayah,text:stripLeadingBasmala(ayah.text)}));
+    if(!Array.isArray(warsh)||!warsh.length)throw new Error("Warsh text unavailable");
+    // Explanatory editions are optional: their failure must not hide the Warsh text.
+    let byId:Record<string,Edition>={};
+    try{
+      const supplemental=await fetch(`https://api.alquran.cloud/v1/surah/${number}/editions/quran-uthmani,en.asad,fr.hamidullah,en.transliteration`,{signal});
+      if(supplemental.ok){
+        const json=await supplemental.json() as {code:number;data:Edition[]};
+        if(json.code===200&&Array.isArray(json.data))byId=Object.fromEntries(json.data.map(item=>[item.edition.identifier,item]));
+      }
+    }catch(error){if(signal?.aborted)throw error}
+    const ar=byId["quran-uthmani"],fr=byId["fr.hamidullah"],en=byId["en.asad"],tr=byId["en.transliteration"];
+    return {number,nameArabic:ar?.name||`سورة ${number}`,nameLatin:ar?.englishName||surahNames[number-1],revelationType:ar?.revelationType==="Meccan"?"Mecquoise":ar?.revelationType==="Medinan"?"Médinoise":"",sourceLabel:"Quranpedia · Muṣḥaf Warsh",verses:warsh.map(ayah=>{const hafsNumber=ayah.number_in_hafs?.[0]||ayah.number;const i=number===1?Math.min(6,ayah.number):Math.max(0,hafsNumber-1);return{number:ayah.number,arabic:ayah.text,transliteration:tr?.ayahs[i]?.text||"",fr:fr?.ayahs[i]?.text||"",en:en?.ayahs[i]?.text||"",juz:ar?.ayahs[i]?.juz,page:ayah.page_number||ar?.ayahs[i]?.page,hizbQuarter:ar?.ayahs[i]?.hizbQuarter}})};
+  }
   const arabic=options.riwayah==="hafs"&&options.tajweed?"quran-tajweed":"quran-uthmani";
   const editions=[...new Set([arabic,"quran-uthmani","en.asad","fr.hamidullah","en.transliteration",options.riwayah==="hafs"?options.reciter:"ar.alafasy"])].join(",");
   const response=await fetch(`https://api.alquran.cloud/v1/surah/${number}/editions/${editions}`,{signal});
@@ -31,26 +48,20 @@ export const quranApi:QuranDataSource={async getSurah(number:number,options:Read
   if(!ar||!fr||!en)throw new Error("Éditions requises indisponibles");
   ar.ayahs.forEach(ayah=>{ayah.text=stripLeadingBasmala(ayah.text)});
 
-  if(options.riwayah==="warsh"){
-    const warshResponse=await fetch(`/api/warsh/${number}`,{signal});
-    if(!warshResponse.ok)throw new Error(`Warsh API ${warshResponse.status}`);
-    const warsh=(await warshResponse.json() as WarshAyah[]).map(ayah=>({...ayah,text:stripLeadingBasmala(ayah.text)}));
-    let warshTajweed:WarshTajweedData|undefined;
-    if(options.tajweed){
-      try{const colorResponse=await fetch(`/data/warsh-tajweed/${String(number).padStart(3,"0")}.json`,{signal});if(colorResponse.ok)warshTajweed=await colorResponse.json() as WarshTajweedData}catch{}
-    }
-    return {number,nameArabic:ar.name,nameLatin:ar.englishName,revelationType:ar.revelationType==="Meccan"?"Mecquoise":"Médinoise",sourceLabel:options.tajweed?"Quranpedia · Muṣḥaf Warsh · QUD Tajwīd":"Quranpedia · Muṣḥaf Warsh",verses:warsh.map(ayah=>{const hafsNumber=ayah.number_in_hafs?.[0]||ayah.number;const i=number===1?Math.min(6,ayah.number):Math.max(0,hafsNumber-1);return{number:ayah.number,arabic:ayah.text,tajweedHtml:options.tajweed?renderWarshTajweed(ayah.text,warshTajweed?.[String(ayah.number)]):undefined,transliteration:tr?.ayahs[i]?.text||"Prononciation indisponible",fr:fr.ayahs[i]?.text||"",en:en.ayahs[i]?.text||"",juz:ar.ayahs[i]?.juz,page:ayah.page_number||ar.ayahs[i]?.page,hizbQuarter:ar.ayahs[i]?.hizbQuarter}})};
-  }
-
   const start=number===1?1:0;
   return {number,nameArabic:ar.name,nameLatin:ar.englishName,revelationType:ar.revelationType==="Meccan"?"Mecquoise":"Médinoise",sourceLabel:`AlQuran Cloud · ${options.tajweed?"tajwīd coloré":"Uthmani"} · Hamidullah · Asad`,verses:ar.ayahs.slice(start).map((ayah,i)=>{const sourceIndex=i+start;return{number:i+1,arabic:ayah.text,tajweedHtml:tajweed?.ayahs[sourceIndex]?.text?parseTajweed(tajweed.ayahs[sourceIndex].text):undefined,transliteration:tr?.ayahs[sourceIndex]?.text||"Prononciation indisponible",fr:fr.ayahs[sourceIndex]?.text||"",en:en.ayahs[sourceIndex]?.text||"",audioUrl:audio?.ayahs[sourceIndex]?.audio,juz:ayah.juz,page:ayah.page,hizbQuarter:ayah.hizbQuarter}})};
 }};
 
 export const warshReciters=[
   {id:"omar-qazabri",name:"Omar Al-Qazabri",server:"https://server9.mp3quran.net/omar_warsh/",missing:[],timingId:80},
+  {id:"hicham-lharraz",name:"Hicham El Harraz",server:"https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/",missing:[33],timingId:null},
   {id:"koshi",name:"Al-Oyoun Al-Kouchi",server:"https://server11.mp3quran.net/koshi/",missing:[],timingId:16},
   {id:"yassin-warsh",name:"Yassin",server:"https://server11.mp3quran.net/qari/",missing:[],timingId:14},
+  {id:"benkirane",name:"Abdelmoujib Benkirane",server:"https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/",missing:[],timingId:null},
   {id:"husr-warsh",name:"Mahmoud Al-Hussary",server:"https://server13.mp3quran.net/husr/Rewayat-Warsh-A-n-Nafi/",missing:[],timingId:120},
+  {id:"abdulbasit-warsh",name:"Abdul Basit Abdus-Samad",server:"https://server7.mp3quran.net/basit/Rewayat-Warsh-A-n-Nafi/",missing:[],timingId:null},
+  {id:"rachid-belalya",name:"Rachid Belalya",server:"https://server6.mp3quran.net/bl3/Rewayat-Warsh-A-n-Nafi/",missing:[],timingId:null},
+  {id:"ibrahim-dosari",name:"Ibrahim Al-Dosari",server:"https://server10.mp3quran.net/ibrahim_dosri/Rewayat-Warsh-A-n-Nafi/",missing:[],timingId:null},
 ] as const;
 
 export function warshSurahAudio(number:number,reciter:string){const voice=warshReciters.find(item=>item.id===reciter)||warshReciters[0];return (voice.missing as readonly number[]).includes(number)?null:`${voice.server}${String(number).padStart(3,"0")}.mp3`}

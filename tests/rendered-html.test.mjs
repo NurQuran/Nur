@@ -200,20 +200,38 @@ test("service worker caches one reader shell per path without intercepting audio
   assert.equal(await visit("https://server9.mp3quran.net/001.mp3", "cors"), false);
 });
 
-test("offers timed Warsh reciters and a clean four-tab mobile navigation", async () => {
+test("offers verified Warsh voices with timing only where available and a clean four-tab navigation", async () => {
   const [adapter, header, css] = await Promise.all([
     readFile(new URL("../lib/quran/adapters/alQuranCloud.ts", import.meta.url), "utf8"),
     readFile(new URL("../components/SiteHeader.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
   ]);
   const voices = adapter.match(/export const warshReciters=\[([\s\S]*?)\] as const;/)?.[1] ?? "";
-  assert.equal((voices.match(/\{id:/g) ?? []).length, 4);
+  assert.equal((voices.match(/\{id:/g) ?? []).length, 9);
   assert.equal((voices.match(/timingId:\d+/g) ?? []).length, 4);
-  assert.doesNotMatch(voices, /hicham-lharraz|benkirane|abdulbasit-warsh/);
+  assert.match(voices, /hicham-lharraz|benkirane|abdulbasit-warsh/);
   assert.match(header, /home:0,read:1,assistant:2,favorites:3/);
   assert.match(header, /--nav-x/);
+  assert.match(header, /nav-measured/);
+  assert.match(css, /nav:not\(\.nav-measured\)::before\{opacity:0!important\}/);
   assert.match(css, /\.topbar nav a\.active::after\{display:none!important;content:none!important\}/);
   assert.match(css, /\.topbar\.mobile-hidden\{translate:none!important;transform:translate3d/);
+});
+
+test("chapter transitions do not reveal stale content and Warsh stays readable without other editions", async () => {
+  const [reader, adapter, css, settings] = await Promise.all([
+    readFile(new URL("../app/read/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../lib/quran/adapters/alQuranCloud.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+    readFile(new URL("../components/SettingsModal.tsx", import.meta.url), "utf8"),
+  ]);
+  assert.match(reader, /surahReady=hydrated&&!loading&&surah\.number===number&&loadedKey===/);
+  assert.doesNotMatch(reader, /<div key=\{number\} className=\{`reading-area/);
+  assert.match(css, /data-surah-ready="false"\] \.chapter-head/);
+  assert.match(css, /@media\(min-width:1000px\) and \(max-height:800px\)/);
+  assert.ok(adapter.indexOf('if(options.riwayah==="warsh")') < adapter.indexOf('const arabic=options.riwayah'));
+  assert.match(adapter, /if\(signal\?\.aborted\)throw error/);
+  assert.match(settings, /disabled=\{value.riwayah==="warsh"\}/);
 });
 
 test("hydrates Arabic before Fqih auto-explanations and keeps word study English/Hafs only", async () => {
