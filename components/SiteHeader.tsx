@@ -18,8 +18,11 @@ export default function SiteHeader({ active = "home", onSettings }: { active?: "
   const navRef = useRef<HTMLElement>(null);
   const indicatorFrame = useRef(0);
   const themePress = useRef<{x:number;y:number;at:number}|null>(null);
-  const { t, language, setLanguage } = useLanguage();
+  const { t, language, ready, setLanguage } = useLanguage();
   useLayoutEffect(()=>{
+    // Wait for the saved language: measuring French labels first consumes the
+    // previous-tab position before English or Arabic labels are hydrated.
+    if(!ready)return;
     const positions={home:0,read:1,assistant:2,favorites:3};
     const target=positions[active];
     const nav=navRef.current;
@@ -51,7 +54,7 @@ export default function SiteHeader({ active = "home", onSettings }: { active?: "
     const resize=()=>setIndicator(target);
     addEventListener("resize",resize);
     return()=>{cancelAnimationFrame(indicatorFrame.current);removeEventListener("resize",resize)};
-  },[active,language]);
+  },[active,language,ready]);
   useEffect(() => {
     hydrateFromAndroid();
     const saved = readAndroidState()?.theme || localStorage.getItem("nur-theme") as "light" | "dark" | null;

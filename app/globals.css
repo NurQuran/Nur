@@ -806,3 +806,37 @@ html[data-motion="reduced"] .topbar nav::before{transform:translate3d(var(--nav-
   [dir="rtl"] .topbar>.header-actions{width:76px!important;justify-self:stretch!important;margin:0!important;transform:none!important}
   [dir="rtl"] .topbar .settings-trigger{width:100%!important;margin:0!important}
 }
+
+/* Warsh rules are annotated against Warsh glyphs, never Hafs verse offsets. */
+.tajweed tajweed.warsh_taqlil{color:#db9a48}
+.tajweed tajweed.warsh_naql{color:#df7f9f}
+.tajweed-legend .warsh_taqlil{background:#db9a48}
+.tajweed-legend .warsh_naql{background:#df7f9f}
+
+/* Keep Fqih's identity visible after a conversation starts. */
+.assistant-shell.conversation-started .assistant-hero{margin:0 0 6px;padding:0 8px 14px}
+.assistant-shell.conversation-started .assistant-hero .ai-mark{width:50px!important;height:44px!important}
+.assistant-shell.conversation-started .assistant-hero h1{font-size:27px;margin:2px 0}
+.assistant-shell.conversation-started .assistant-hero small{font-size:8px}
+@media(max-width:900px) and (orientation:portrait){
+  .assistant-shell:not(.conversation-started) .assistant-hero{display:flex;align-items:center;margin:0 0 10px;padding:0 5px 13px}
+  .assistant-shell:not(.conversation-started) .assistant-hero h1{font-size:28px}
+  .assistant-shell:not(.conversation-started) .assistant-hero p{font-size:12px;line-height:1.4}
+  .assistant-shell.conversation-started .assistant-hero{align-items:center}
+}
+
+/* The empty library is one compact group instead of a full-height placeholder. */
+.favorites-page>.empty{min-height:0;max-width:560px;gap:11px;margin:28px auto 12px;padding:22px 18px}
+.favorites-page>.empty>span{line-height:1;margin:0 0 3px}
+.favorites-page>.empty h2{margin:0;color:var(--text);line-height:1.2}
+.favorites-page>.empty p{margin:0 0 5px;line-height:1.45}
+.favorites-page>.empty .primary{margin:0;border-radius:999px}
+@media(max-width:900px) and (orientation:portrait){
+  .favorites-page>.empty{gap:10px;margin:14px auto 6px;padding:18px 16px!important}
+}
+
+/* Portrait tablets use the same comfortably separated list as phones. */
+@media(min-width:701px) and (max-width:1280px) and (orientation:portrait){
+  .reader-page.mobile-selecting .rail-surahs>div>button{min-height:66px!important;margin-bottom:13px!important;padding:12px 16px!important}
+  .reader-page.mobile-selecting .rail-surahs>div>button strong{font-size:17px}
+}

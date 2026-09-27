@@ -2,6 +2,35 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 import vm from "node:vm";
+import { renderWarshTajweed } from "../lib/quran/warshTajweed.ts";
+
+test("Warsh color spans preserve the exact verse and reject mismatched text", async () => {
+  const data = JSON.parse(await readFile(new URL("../public/data/warsh-tajweed/001.json", import.meta.url), "utf8"));
+  const [text, spans] = data["3"];
+  assert.ok(spans.length > 0);
+  const html = renderWarshTajweed(text, [text, spans]);
+  assert.match(html, /<tajweed class="/);
+  assert.equal(html.replace(/<[^>]+>/g, ""), text);
+  assert.equal(renderWarshTajweed(`${text}x`, [text, spans]), undefined);
+  assert.equal(renderWarshTajweed(text, [text, [[0, text.length + 1, "ghn"]]]), undefined);
+  assert.equal(renderWarshTajweed(text, [text, [[0, 1, "untrusted"]]]), undefined);
+});
+
+test("localized navigation and reader arrows keep their destination", async () => {
+  const [header, reader, assistant, css] = await Promise.all([
+    readFile(new URL("../components/SiteHeader.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/read/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/assistant/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+  ]);
+  assert.match(header, /if\(!ready\)return;/);
+  assert.match(header, /\[active,language,ready\]/);
+  assert.match(reader, /navVerse-1\)[^\n]*language==="ar"\?"→":"←"/);
+  assert.match(reader, /navVerse\+1\)[^\n]*language==="ar"\?"←":"→"/);
+  assert.match(assistant, /<header className="assistant-hero">/);
+  assert.doesNotMatch(assistant, /!messages\.length&&<><header className="assistant-hero">/);
+  assert.match(css, /reader-page\.mobile-selecting \.rail-surahs>div>button\{min-height:66px/);
+});
 
 async function render(path = "/") {
   const workerUrl = new URL("../dist/server/index.js", import.meta.url);

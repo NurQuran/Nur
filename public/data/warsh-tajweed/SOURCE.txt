@@ -1,0 +1,11 @@
+Warsh text: Quranpedia Muṣḥaf Warsh (mushaf 4), official dump version 2026-09-27.
+https://quranpedia.net/
+https://api.quranpedia.net/dumps?lang=en
+
+Tajwīd rule annotations: QUD Technologies quranic-phonemizer (MIT license).
+https://github.com/QUD-Technologies/quranic-phonemizer
+
+The color-span files are derived for use inside Nūr. A span is shown only when
+the displayed Warsh verse exactly matches the Quranpedia text in its file.
+Differences between the Quranpedia and QUD texts are projected only across
+identical Unicode codepoints; changed characters never receive a rule color.

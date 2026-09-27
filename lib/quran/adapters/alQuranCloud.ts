@@ -1,4 +1,5 @@
 import type { QuranDataSource, QuranSurah, ReaderOptions } from "../types";
+import { renderWarshTajweed, type WarshTajweedData } from "../warshTajweed";
 
 type Edition = { edition:{identifier:string}; name:string; englishName:string; revelationType:string; ayahs:{numberInSurah:number;text:string;audio?:string;juz?:number;page?:number;hizbQuarter?:number}[] };
 type WarshAyah = { number:number; text:string; number_in_hafs?:number[]; page_number?:number };
@@ -19,7 +20,7 @@ function stripLeadingBasmala(value:string){
 }
 
 export const quranApi:QuranDataSource={async getSurah(number:number,options:ReaderOptions,signal?:AbortSignal):Promise<QuranSurah>{
-  const arabic=options.tajweed?"quran-tajweed":"quran-uthmani";
+  const arabic=options.riwayah==="hafs"&&options.tajweed?"quran-tajweed":"quran-uthmani";
   const editions=[...new Set([arabic,"quran-uthmani","en.asad","fr.hamidullah","en.transliteration",options.riwayah==="hafs"?options.reciter:"ar.alafasy"])].join(",");
   const response=await fetch(`https://api.alquran.cloud/v1/surah/${number}/editions/${editions}`,{signal});
   if(!response.ok)throw new Error(`Quran API ${response.status}`);
@@ -34,7 +35,11 @@ export const quranApi:QuranDataSource={async getSurah(number:number,options:Read
     const warshResponse=await fetch(`/api/warsh/${number}`,{signal});
     if(!warshResponse.ok)throw new Error(`Warsh API ${warshResponse.status}`);
     const warsh=(await warshResponse.json() as WarshAyah[]).map(ayah=>({...ayah,text:stripLeadingBasmala(ayah.text)}));
-    return {number,nameArabic:ar.name,nameLatin:ar.englishName,revelationType:ar.revelationType==="Meccan"?"Mecquoise":"Médinoise",sourceLabel:"Quranpedia · Muṣḥaf Warsh",verses:warsh.map(ayah=>{const hafsNumber=ayah.number_in_hafs?.[0]||ayah.number;const i=number===1?Math.min(6,ayah.number):Math.max(0,hafsNumber-1);return{number:ayah.number,arabic:ayah.text,transliteration:tr?.ayahs[i]?.text||"Prononciation indisponible",fr:fr.ayahs[i]?.text||"",en:en.ayahs[i]?.text||"",juz:ar.ayahs[i]?.juz,page:ayah.page_number||ar.ayahs[i]?.page,hizbQuarter:ar.ayahs[i]?.hizbQuarter}})};
+    let warshTajweed:WarshTajweedData|undefined;
+    if(options.tajweed){
+      try{const colorResponse=await fetch(`/data/warsh-tajweed/${String(number).padStart(3,"0")}.json`,{signal});if(colorResponse.ok)warshTajweed=await colorResponse.json() as WarshTajweedData}catch{}
+    }
+    return {number,nameArabic:ar.name,nameLatin:ar.englishName,revelationType:ar.revelationType==="Meccan"?"Mecquoise":"Médinoise",sourceLabel:options.tajweed?"Quranpedia · Muṣḥaf Warsh · QUD Tajwīd":"Quranpedia · Muṣḥaf Warsh",verses:warsh.map(ayah=>{const hafsNumber=ayah.number_in_hafs?.[0]||ayah.number;const i=number===1?Math.min(6,ayah.number):Math.max(0,hafsNumber-1);return{number:ayah.number,arabic:ayah.text,tajweedHtml:options.tajweed?renderWarshTajweed(ayah.text,warshTajweed?.[String(ayah.number)]):undefined,transliteration:tr?.ayahs[i]?.text||"Prononciation indisponible",fr:fr.ayahs[i]?.text||"",en:en.ayahs[i]?.text||"",juz:ar.ayahs[i]?.juz,page:ayah.page_number||ar.ayahs[i]?.page,hizbQuarter:ar.ayahs[i]?.hizbQuarter}})};
   }
 
   const start=number===1?1:0;
