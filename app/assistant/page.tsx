@@ -17,26 +17,27 @@ function stableSafetyId() {
 }
 
 export default function AssistantPage() {
-  const { language, t } = useLanguage();
+  const { language, ready, t } = useLanguage();
   const [messages,setMessages]=useState<Message[]>([]),[draft,setDraft]=useState(""),[attachment,setAttachment]=useState<Attachment|null>(null);
   const [pickerOpen,setPickerOpen]=useState(false),[surahNumber,setSurahNumber]=useState(1),[loading,setLoading]=useState(false),[error,setError]=useState("");
   const end=useRef<HTMLDivElement>(null),autoSent=useRef(false),composer=useRef<HTMLFormElement>(null);
 
   useEffect(()=>{
+    if(!ready)return;
     try { const saved=sessionStorage.getItem("nur-ai-attachment"); if(saved){const parsed=JSON.parse(saved) as Attachment;setAttachment(parsed);sessionStorage.removeItem("nur-ai-attachment");const params=new URLSearchParams(location.search);if(params.get("auto")==="explain"&&!autoSent.current){autoSent.current=true;const prompt=language==="ar"?"اشرح هذا المقطع وسياقه وأهم معانيه مع مراعاة ضوابط التفسير.":language==="en"?"Explain this passage, its context and main lessons, while noting the limits of interpretation.":"Explique-moi ce passage, son contexte et ses enseignements principaux, avec les précautions d’interprétation.";setTimeout(()=>void send(prompt,parsed),250)}} } catch {}
-  },[language]);
+  },[language,ready]);
   useEffect(()=>{if(messages.length||loading)requestAnimationFrame(()=>end.current?.scrollIntoView({behavior:scrollMotion(),block:"nearest"}))},[messages,loading]);
 
   async function attachSurah(){
     setError(""); setLoading(true);
     try{
       const translation=language==="en"?"en.asad":"fr.hamidullah";
-      const response=await fetch(`https://api.alquran.cloud/v1/surah/${surahNumber}/editions/quran-uthmani,${translation}`);
+      const response=await fetch(`https://api.alquran.cloud/v1/surah/${surahNumber}/editions/${language==="ar"?"quran-uthmani":`quran-uthmani,${translation}`}`);
       if(!response.ok)throw new Error();
-      const json=await response.json(); const editions=json.data as Array<{ayahs:Array<{numberInSurah:number;text:string}>}>;
+      const json=await response.json(); const editions=(Array.isArray(json.data)?json.data:[json.data]) as Array<{name?:string;ayahs:Array<{numberInSurah:number;text:string}>}>;
       const arabic=editions[0]?.ayahs||[],translated=editions[1]?.ayahs||[];
-      const label=language==="ar"?`${surahs[surahNumber-1].name} · سورة ${surahNumber}`:`${surahs[surahNumber-1].name} · ${language==="en"?"Surah":"Sourate"} ${surahNumber}`;
-      const context=arabic.map((a,i)=>`${a.numberInSurah}. ${a.text}\n${language==="en"?"EN":"FR"}: ${translated[i]?.text||""}`).join("\n\n");
+      const label=language==="ar"?`${editions[0]?.name||`سورة ${surahNumber}`} · ${surahNumber}`:`${surahs[surahNumber-1].name} · ${language==="en"?"Surah":"Sourate"} ${surahNumber}`;
+      const context=arabic.map((a,i)=>language==="ar"?`${a.numberInSurah}. ${a.text}`:`${a.numberInSurah}. ${a.text}\n${language==="en"?"EN":"FR"}: ${translated[i]?.text||""}`).join("\n\n");
       setAttachment({label,context});setPickerOpen(false);
     }catch{setError(language==="ar"?"تعذر تحميل هذه السورة الآن.":language==="en"?"This surah could not be loaded right now.":"Impossible de charger cette sourate pour le moment.")}finally{setLoading(false)}
   }
@@ -72,12 +73,12 @@ export default function AssistantPage() {
   function openPicker(){setPickerOpen(v=>!v);requestAnimationFrame(()=>{composer.current?.scrollIntoView({behavior:scrollMotion(),block:"center"});setTimeout(()=>window.scrollBy({top:Math.min(220,innerHeight*.24),behavior:scrollMotion()}),180)})}
 
   return <main className="assistant-page"><SiteHeader active="assistant"/><section className={`assistant-shell${messages.length?" conversation-started":""}`}>
-    {!messages.length&&<><header className="assistant-hero"><span className="ai-mark" aria-hidden="true"><img src="/icons/ui/fqih.svg" alt=""/></span><div><small>{t("fqihEyebrow")}</small><h1>Fqih</h1><p>{t("fqihLead")}</p></div></header>
+    {!messages.length&&<><header className="assistant-hero"><span className="ai-mark" aria-hidden="true"><img src="/icons/ui/fqih.svg" alt=""/></span><div><small>{t("fqihEyebrow")}</small><h1>{language==="ar"?"فقيه":"Fqih"}</h1><p>{t("fqihLead")}</p></div></header>
     <div className="ai-disclaimer"><span className="inline-spark" aria-hidden="true"/> {t("fqihDisclaimer")}</div></>}
     <div className="chat-stream" aria-live="polite">
       {!messages.length&&<div className="ai-welcome"><h2>{t("fqihWelcome")}</h2><p>{t("fqihWelcomeLead")}</p><div><button onClick={()=>setDraft(language==="ar"?"اشرح الموضوع الرئيسي لسورة الفاتحة.":language==="en"?"Explain the main theme of Surah Al-Fātiḥah.":"Explique-moi le thème principal de la sourate Al-Fātiḥah.")}>{language==="ar"?"شرح الفاتحة":language==="en"?"Explain Al-Fātiḥah":"Expliquer Al-Fātiḥah"}</button><button onClick={()=>setDraft(language==="ar"?"كيف أميّز بين الشرح والحكم الشرعي؟":language==="en"?"How do I distinguish an explanation from a legal opinion?":"Comment distinguer une explication d’un avis juridique ?")}>{language==="ar"?"فهم الرأي الشرعي":language==="en"?"Understand an opinion":"Comprendre un avis"}</button></div></div>}
-      {messages.map((m,i)=><article key={i} className={`chat-message ${m.role}`}><span>{m.role==="assistant"?"Fqih":t("you")}</span><div>{m.attachmentLabel&&<b className="attachment-bubble">{m.attachmentLabel}</b>}{m.role==="assistant"?<MarkdownMessage content={m.content}/>:<p>{m.content}</p>}</div></article>)}
-      {loading&&<article className="chat-message assistant thinking"><span>Fqih</span><div><i/><i/><i/></div></article>}
+      {messages.map((m,i)=><article key={i} className={`chat-message ${m.role}`}><span>{m.role==="assistant"?(language==="ar"?"فقيه":"Fqih"):t("you")}</span><div>{m.attachmentLabel&&<b className="attachment-bubble">{m.attachmentLabel}</b>}{m.role==="assistant"?<MarkdownMessage content={m.content}/>:<p>{m.content}</p>}</div></article>)}
+      {loading&&<article className="chat-message assistant thinking"><span>{language==="ar"?"فقيه":"Fqih"}</span><div><i/><i/><i/></div></article>}
       {error&&<div className="ai-error" role="alert">{error}</div>}<div ref={end}/>
     </div>
     <form ref={composer} className="chat-composer" onSubmit={submit}>

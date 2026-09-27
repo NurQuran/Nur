@@ -186,3 +186,24 @@ test("offers timed Warsh reciters and a clean four-tab mobile navigation", async
   assert.match(css, /\.topbar nav a\.active::after\{display:none!important;content:none!important\}/);
   assert.match(css, /\.topbar\.mobile-hidden\{translate:none!important;transform:translate3d/);
 });
+
+test("hydrates Arabic before Fqih auto-explanations and keeps word study English/Hafs only", async () => {
+  const [i18n, layout, assistant, reader, settings, wordStudy, api, header, css] = await Promise.all([
+    "lib/i18n.ts", "app/layout.tsx", "app/assistant/page.tsx", "app/read/page.tsx",
+    "components/SettingsModal.tsx", "components/WordStudy.tsx", "app/api/ai-fiqh/route.ts",
+    "components/SiteHeader.tsx", "app/globals.css",
+  ].map(path => readFile(new URL(`../${path}`, import.meta.url), "utf8")));
+  assert.match(i18n, /return\{language,ready,setLanguage,t\}/);
+  assert.match(layout, /document\.documentElement\.dir=language==='ar'\?'rtl':'ltr'/);
+  assert.match(assistant, /if\(!ready\)return/);
+  assert.match(assistant, /language==="ar"\?"اشرح هذا المقطع/);
+  assert.match(assistant, /language==="ar"\?"فقيه":"Fqih"/);
+  assert.match(reader, /language!=="en"\|\|!options\.wordStudy\|\|options\.riwayah!=="hafs"/);
+  assert.match(reader, /const name=language==="ar"\?surah\.nameArabic:surah\.nameLatin/);
+  assert.match(settings, /language==="en"&&value\.riwayah==="hafs"&&<div className="setting-group word-study-setting"/);
+  assert.match(wordStudy, /language !== "en"/);
+  assert.match(api, /اكتب الإجابة كاملةً باللغة العربية الفصحى/);
+  assert.match(header, /href="\/assistant">\{language==="ar"\?"فقيه":"Fqih"\}/);
+  assert.match(css.slice(css.indexOf("/* The indicator is measured")), /html\[data-motion="reduced"\] \.topbar nav::before\{transform:translate3d\(var\(--nav-x,0px\),0,0\)!important\}/);
+  assert.match(css.slice(css.indexOf("/* The indicator is measured")), /\[dir="rtl"\] \.topbar nav::before\{left:0!important;right:auto!important\}/);
+});

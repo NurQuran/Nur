@@ -788,3 +788,21 @@ html[data-motion="reduced"] .settings-trigger:active{transform:none!important}
   html:not(#nur-motion-override) *,html:not(#nur-motion-override) *::before,html:not(#nur-motion-override) *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
   .setting-group,.picker-menu a,.customize-tab .study-card,.customize-tab .study-card>*,.customize-tab .progress-numbers span{opacity:1!important}
 }
+
+/* The indicator is measured from the physical left edge, in both writing directions. */
+[dir="rtl"] .topbar nav::before{left:0!important;right:auto!important}
+html[data-motion="reduced"] .topbar nav::before{transform:translate3d(var(--nav-x,0px),0,0)!important}
+@media(prefers-reduced-motion:reduce){.topbar nav::before{transform:translate3d(var(--nav-x,0px),0,0)!important}}
+
+/* Arabic interface typography and controls; Quranic ayahs keep their own script face. */
+[dir="rtl"] body,[dir="rtl"] button,[dir="rtl"] input,[dir="rtl"] select,[dir="rtl"] textarea{font-family:"Geeza Pro","Noto Sans Arabic",Tahoma,"Segoe UI",sans-serif}
+[dir="rtl"] h1,[dir="rtl"] h2,[dir="rtl"] h3,[dir="rtl"] .lede,[dir="rtl"] .surah-heading,[dir="rtl"] .reader-rail h2,[dir="rtl"] .ai-welcome h2,[dir="rtl"] .assistant-hero h1{font-family:"Noto Naskh Arabic","Geeza Pro","Traditional Arabic",serif;letter-spacing:normal;line-height:1.35}
+[dir="rtl"] .topbar nav a,[dir="rtl"] .settings-label,[dir="rtl"] .setting-group,[dir="rtl"] .chat-composer,[dir="rtl"] .chat-message,[dir="rtl"] .assistant-hero,[dir="rtl"] .ai-welcome{letter-spacing:normal;line-height:1.6}
+[dir="rtl"] .assistant-shell,[dir="rtl"] .chat-stream,[dir="rtl"] .chat-message,[dir="rtl"] .chat-composer,[dir="rtl"] .attachment-picker{direction:rtl;text-align:right}
+[dir="rtl"] .chat-composer textarea{direction:rtl;text-align:right}
+[dir="rtl"] .topbar>.header-actions{position:relative;z-index:3;pointer-events:auto!important}
+[dir="rtl"] .topbar .settings-trigger{position:relative;z-index:2;display:grid;place-items:center;min-width:0;direction:rtl}
+@media(max-width:700px), (min-width:701px) and (max-width:1280px) and (orientation:portrait){
+  [dir="rtl"] .topbar>.header-actions{width:76px!important;justify-self:stretch!important;margin:0!important;transform:none!important}
+  [dir="rtl"] .topbar .settings-trigger{width:100%!important;margin:0!important}
+}
