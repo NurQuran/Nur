@@ -2,6 +2,7 @@ import vinext from "vinext";
 import { defineConfig } from "vite";
 import hostingConfig from "./.openai/hosting.json";
 import { sites } from "./build/sites-vite-plugin";
+import nurConfig from "./nur.config.json";
 
 const SITE_CREATOR_PLACEHOLDER_DATABASE_ID =
   "00000000-0000-4000-8000-000000000000";
@@ -33,7 +34,7 @@ const localBindingConfig = {
     : [],
 };
 
-export default defineConfig(async () => {
+export default defineConfig(async ({command}) => {
   // Keep Wrangler and Miniflare state project-local. These are non-secret tool
   // settings; application environment belongs in ignored `.env*` files.
   process.env.WRANGLER_WRITE_LOGS ??= "false";
@@ -52,7 +53,16 @@ export default defineConfig(async () => {
       sites(),
       cloudflare({
         viteEnvironment: { name: "rsc", childEnvironments: ["ssr"] },
-        config: localBindingConfig,
+        config: {
+          ...localBindingConfig,
+          name:nurConfig.workerName,
+          vars:{GMAIL_SENDER:nurConfig.gmailSender,...(command==="build"?{APP_ORIGIN:nurConfig.origin}:{})},
+          d1_databases:(process.env.NUR_D1_DATABASE_ID||nurConfig.databaseId||command==="serve")?[{
+            binding:"DB",database_name:"nur-accounts",database_id:process.env.NUR_D1_DATABASE_ID||nurConfig.databaseId||SITE_CREATOR_PLACEHOLDER_DATABASE_ID,
+            migrations_dir:"migrations",
+          }]:localBindingConfig.d1_databases,
+          triggers:{crons:["17 3 * * *"]},
+        },
       }),
     ],
   };

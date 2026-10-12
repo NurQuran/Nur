@@ -1,6 +1,7 @@
-const SHELL = "nur-shell-v24";
+const SHELL = "nur-shell-v26";
 const CONTENT = "nur-content-v1";
-const OFFLINE_SHELL = ["/", "/read", "/favorites", "/assistant", "/manifest.webmanifest", "/nur-logo.png", "/icons/nur-180.png", "/icons/nur-192.png", "/icons/nur-512.png", "/icons/nur-app-rounded-1024.png", "/data/word-data.js", "/icons/ui/fqih.svg"];
+// Protected shells are cached only after an authorized visit, not during installation.
+const OFFLINE_SHELL = ["/", "/welcome", "/manifest.webmanifest", "/nur-logo.png", "/icons/nur-180.png", "/icons/nur-192.png", "/icons/nur-512.png", "/icons/nur-app-rounded-1024.png", "/data/word-data.js", "/icons/ui/fqih.svg"];
 
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(SHELL).then(cache => cache.addAll(OFFLINE_SHELL)));
@@ -28,6 +29,8 @@ self.addEventListener("fetch", event => {
   if (event.request.method !== "GET") return;
   const url = new URL(event.request.url);
   const sameOrigin = url.origin === self.location.origin;
+  // Sessions, account data and administration must never enter the offline cache.
+  if (sameOrigin && (url.pathname === "/admin" || url.pathname.startsWith("/api/auth/") || url.pathname.startsWith("/api/account/") || url.pathname.startsWith("/api/admin/"))) return;
   if (!sameOrigin && url.hostname !== "api.alquran.cloud") return;
 
   if (!sameOrigin) {
@@ -51,7 +54,7 @@ self.addEventListener("fetch", event => {
     serve(event, async store => {
       try {
         const response = await fetch(event.request);
-        if (response.ok) store(SHELL, new Request(url.origin + url.pathname), response);
+        if (response.ok && !response.redirected) store(SHELL, new Request(url.origin + url.pathname), response);
         return response;
       } catch {
         return (await caches.match(url.origin + url.pathname)) || (await caches.match("/")) || Response.error();
@@ -60,7 +63,7 @@ self.addEventListener("fetch", event => {
     return;
   }
 
-  if (url.pathname.startsWith("/api/warsh/")) {
+  if ((url.pathname.startsWith("/api/warsh/") || url.pathname.startsWith("/api/hadith/"))) {
     serve(event, async store => {
       try {
         const response = await fetch(event.request);

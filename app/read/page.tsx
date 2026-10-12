@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import SiteHeader from "../../components/SiteHeader";
 import SiteFooter from "../../components/SiteFooter";
 import SettingsModal from "../../components/SettingsModal";
@@ -13,6 +13,8 @@ import { surahNames } from "../../lib/quran/surahs";
 import type { QuranSurah, ReaderOptions } from "../../lib/quran/types";
 import UiIcon from "../../components/UiIcon";
 import { scrollMotion } from "../../lib/motion";
+import { recordVisit } from "../../lib/analytics";
+import { captureRouteFrame, playRouteFrame, portraitReaderLayout } from "../../lib/routeMotion";
 
 const defaults: ReaderOptions = { riwayah:"hafs", reciter:"ar.alafasy", fontSize:40, tajweed:false, showFrench:true, showEnglish:false, showTransliteration:true, playbackRate:1, repeatVerse:false };
 type PlayMode = "idle" | "single" | "sequence" | "range" | "warsh";
@@ -36,6 +38,16 @@ export default function ReaderPage() {
   const [progress,setProgress]=useState({read:0,minutes:0,goal:10});
   const [readSurahs,setReadSurahs]=useState<number[]>([]);
   const [mobileSelecting,setMobileSelecting]=useState(true);
+  const [libraryEntering,setLibraryEntering]=useState(false);
+  const [libraryInstant,setLibraryInstant]=useState(false);
+  const libraryFrame=useRef<HTMLElement|null>(null);
+  useLayoutEffect(()=>{
+    if(!mobileSelecting)return;
+    playRouteFrame(libraryFrame.current);libraryFrame.current=null;
+    const timer=setTimeout(()=>setLibraryEntering(false),560);
+    return()=>clearTimeout(timer);
+  },[mobileSelecting]);
+  useEffect(()=>()=>{libraryFrame.current?.remove()},[]);
   const [surahDirection,setSurahDirection]=useState<"forward"|"back"|"">("");
   const [wordData,setWordData]=useState<Record<number,Record<number,[string,string,string][]>>|null>(null);
   const [warshTimings,setWarshTimings]=useState<WarshTiming[]|null>(null);
@@ -71,6 +83,23 @@ export default function ReaderPage() {
   useEffect(()=>{setWarshTimings(null);if(options.riwayah!=="warsh"||surah.number!==number||!surah.verses.length)return;const voice=warshReciters.find(v=>v.id===options.reciter);if(!voice?.timingId)return;const controller=new AbortController();fetch(`https://www.mp3quran.net/api/v3/ayat_timing?surah=${number}&read=${voice.timingId}`,{signal:controller.signal}).then(r=>{if(!r.ok)throw new Error("timing");return r.json()}).then((rows:WarshTiming[])=>{if(!Array.isArray(rows))return;const verses=rows.filter(row=>Number(row.ayah)>0);if(verses.length===surah.verses.length&&verses.every((row,i)=>Number(row.ayah)===i+1&&Number(row.end_time)>Number(row.start_time)))setWarshTimings(verses)}).catch(()=>{});return()=>controller.abort()},[number,options.riwayah,options.reciter,surah.number,surah.verses.length]);
   useEffect(() => { const selecting=!new URLSearchParams(location.search).has("surah");setMobileSelecting(selecting);patchAndroidState({currentView:"read",libraryOpen:selecting}); },[]);
   useEffect(()=>{const restore=()=>{const query=new URLSearchParams(location.search),selected=query.has("surah");setMobileSelecting(!selected);if(!selected)return;const next=Math.min(114,Math.max(1,Number(query.get("surah"))||1));setSurahDirection(next<numberRef.current?"back":"forward");numberRef.current=next;setNumber(next);patchAndroidState({current:next,currentView:"read",libraryOpen:false})};addEventListener("popstate",restore);return()=>removeEventListener("popstate",restore)},[]);
+  useEffect(()=>{if(hydrated)recordVisit(mobileSelecting?undefined:number)},[hydrated,number,mobileSelecting]);
+  useEffect(()=>{
+    const reselect=()=>{
+      if(portraitReaderLayout())showLibrary(false);
+      else document.querySelector(".chapter-head")?.scrollIntoView({behavior:scrollMotion(),block:"start"});
+    };
+    addEventListener("nur-reader-reselect",reselect);
+    return()=>removeEventListener("nur-reader-reselect",reselect);
+  },[mobileSelecting]);
+  useEffect(()=>{
+    const restore=()=>{
+      const next={...defaults,...savedJson<Partial<ReaderOptions>>("nur-settings",{})};
+      if(next.riwayah==="warsh")next.tajweed=false;
+      setOptions(next);setFavoriteSurahs(savedJson("nur-favorite-surahs",[]));setReadSurahs(savedJson("nur-read-surahs",[]));setProgress(savedJson("nur-progress",{read:0,minutes:0,goal:10}));
+    };
+    addEventListener("nur-cloud-hydrated",restore);return()=>removeEventListener("nur-cloud-hydrated",restore);
+  },[]);
   useEffect(() => { if(!hydrated)return;setVisibleCount(VERSE_BATCH);setNavVerse(1);void load(number,options);return()=>{loadSequence.current++;loadAbort.current?.abort()}; },[hydrated,number,options.riwayah,options.reciter,options.tajweed]);
   useEffect(() => {if(hydrated)try{localStorage.setItem("nur-settings",JSON.stringify(options))}catch{}},[hydrated,options]);
   useEffect(()=>{if(localStorage.getItem("nur-translation-mode")==="manual")return;const showFrench=language==="fr",showEnglish=language==="en";setOptions(current=>current.showFrench===showFrench&&current.showEnglish===showEnglish?current:{...current,showFrench,showEnglish});patchAndroidState({french:showFrench,english:showEnglish})},[language]);
@@ -87,7 +116,7 @@ export default function ReaderPage() {
   useEffect(()=>{dispatchEvent(new CustomEvent("nur-audio-download-status",{detail:offlineState}))},[offlineState]);
   useEffect(()=>{const key=(e:KeyboardEvent)=>{if((e.target as HTMLElement)?.matches("input,select,textarea"))return;if(e.code==="Space"){e.preventDefault();mode==="idle"?playFull():togglePlayer()}if(e.key==="ArrowDown")jumpToVerse(navVerse+1);if(e.key==="ArrowUp")jumpToVerse(navVerse-1);if(e.key.toLowerCase()==="f")setFocusMode(v=>!v)};addEventListener("keydown",key);return()=>removeEventListener("keydown",key)});
   useEffect(() => { if(!hydrated||loading||surah.number!==number||!surah.verses.length)return;const requested=Number(location.hash.replace("#verse-",""));if(requested>0){scrollToVerse(requested);history.replaceState({},"",location.pathname+location.search)} },[hydrated,loading,number,surah.number,surah.verses.length]);
-  useEffect(() => { if(!hydrated||loading||surah.number!==number||!surah.verses.length)return;const observer=new IntersectionObserver(entries=>{const visible=entries.filter(e=>e.isIntersecting).sort((a,b)=>Math.abs(a.boundingClientRect.top-innerHeight/2)-Math.abs(b.boundingClientRect.top-innerHeight/2))[0];if(!visible)return;const verse=Number(visible.target.id.replace("verse-",""));if(verse>0){setNavVerse(verse);try{localStorage.setItem("nur-last-position",JSON.stringify({surah:number,verse}))}catch{}patchAndroidState({current:number,currentVerse:verse})}},{rootMargin:"-40% 0px -40% 0px",threshold:.05});document.querySelectorAll(".verse-card").forEach(el=>observer.observe(el));return()=>observer.disconnect(); },[hydrated,loading,number,surah.number,surah.verses.length,visibleCount]);
+  useEffect(() => { if(!hydrated||loading||surah.number!==number||!surah.verses.length)return;const observer=new IntersectionObserver(entries=>{const visible=entries.filter(e=>e.isIntersecting).sort((a,b)=>Math.abs(a.boundingClientRect.top-innerHeight/2)-Math.abs(b.boundingClientRect.top-innerHeight/2))[0];if(!visible)return;const verse=Number(visible.target.id.replace("verse-",""));if(verse>0){setNavVerse(verse);try{localStorage.setItem("nur-last-position",JSON.stringify({surah:number,verse,updatedAt:Date.now()}));sessionStorage.removeItem("nur-resume-dismissed")}catch{}patchAndroidState({current:number,currentVerse:verse})}},{rootMargin:"-40% 0px -40% 0px",threshold:.05});document.querySelectorAll(".verse-card").forEach(el=>observer.observe(el));return()=>observer.disconnect(); },[hydrated,loading,number,surah.number,surah.verses.length,visibleCount]);
   useEffect(()=>{if(loading||surah.number!==number||visibleCount>=surah.verses.length||!moreVerses.current)return;if(typeof IntersectionObserver==="undefined"){setVisibleCount(surah.verses.length);return}const observer=new IntersectionObserver(entries=>{if(entries.some(entry=>entry.isIntersecting))setVisibleCount(count=>Math.min(surah.verses.length,count+VERSE_BATCH))},{rootMargin:"800px 0px"});observer.observe(moreVerses.current);return()=>observer.disconnect()},[loading,number,surah.number,surah.verses.length,visibleCount]);
   useEffect(()=>{const target=pendingScroll.current;if(loading||surah.number!==number||target===null||target>visibleCount)return;const frame=requestAnimationFrame(()=>{document.getElementById(`verse-${target}`)?.scrollIntoView({behavior:scrollMotion(),block:"center"});pendingScroll.current=null});return()=>cancelAnimationFrame(frame)},[loading,number,surah.number,visibleCount]);
 
@@ -101,7 +130,14 @@ export default function ReaderPage() {
   }
   function stopAudio(){ audio.current?.pause(); warshStopAt.current=null;setMode("idle"); setIsPlaying(false); setCurrentTime(0); }
   function changeOptions(next:ReaderOptions){if(next.showFrench!==options.showFrench||next.showEnglish!==options.showEnglish)localStorage.setItem("nur-translation-mode","manual");const safe=next.riwayah==="warsh"?{...next,tajweed:false}:next;setOptions(safe);patchAndroidState({riwayah:safe.riwayah,reciter:safe.reciter,tajweed:safe.tajweed,pronunciation:safe.showTransliteration,french:safe.showFrench,english:safe.showEnglish,fontSize:safe.fontSize})}
-  function go(n:number){ if(n===number&&!mobileSelecting)return;pendingScroll.current=null;setSurahDirection(n<number?"back":"forward"); history.pushState({},"",`/read?surah=${n}`); numberRef.current=n;setNumber(n);patchAndroidState({current:n,currentVerse:1,currentView:"read",libraryOpen:false}); setMobileSelecting(false); scrollTo({top:0,behavior:scrollMotion()}); }
+  function showLibrary(animate=true){
+    if(mobileSelecting){scrollTo({top:0,behavior:scrollMotion()});return}
+    libraryFrame.current?.remove();libraryFrame.current=animate?captureRouteFrame("right"):null;
+    setLibraryInstant(!animate);setLibraryEntering(animate);setMobileSelecting(true);setSurahDirection("");pendingScroll.current=null;
+    patchAndroidState({currentView:"read",libraryOpen:true});history.pushState(history.state,"","/read");
+    scrollTo({top:0,behavior:"instant"});dispatchEvent(new Event("nur-reader-top"));
+  }
+  function go(n:number){ if(n===number&&!mobileSelecting)return;pendingScroll.current=null;setLibraryEntering(false);setSurahDirection(n<number?"back":"forward"); history.pushState({},"",`/read?surah=${n}`); numberRef.current=n;setNumber(n);patchAndroidState({current:n,currentVerse:1,currentView:"read",libraryOpen:false}); setMobileSelecting(false); scrollTo({top:0,behavior:scrollMotion()}); }
   function toggleFavorite(){ const next=favoriteSurahs.includes(number)?favoriteSurahs.filter(n=>n!==number):[...favoriteSurahs,number]; setFavoriteSurahs(next); localStorage.setItem("nur-favorite-surahs",JSON.stringify(next));patchAndroidState({favorites:next}); }
   function scrollToVerse(next:number){const target=Math.max(1,Math.min(surah.verses.length||1,next));pendingScroll.current=target;setVisibleCount(count=>Math.max(count,Math.min(surah.verses.length,Math.ceil(target/VERSE_BATCH)*VERSE_BATCH)));requestAnimationFrame(()=>{if(pendingScroll.current===target&&document.getElementById(`verse-${target}`)){document.getElementById(`verse-${target}`)?.scrollIntoView({behavior:scrollMotion(),block:"center"});pendingScroll.current=null}})}
   function jumpToVerse(next:number){ const target=Math.max(1,Math.min(surah.verses.length||1,next)); setNavVerse(target);scrollToVerse(target); }
@@ -136,10 +172,10 @@ export default function ReaderPage() {
 
   return <main className={`${focusMode?"focus-reading ":""}${memoryMode&&hideArabic?"memory-hide-arabic":""}`}>
     <SiteHeader active="read" onSettings={()=>setSettingsOpen(true)}/>
-    <section className={`reader-page${mobileSelecting?" mobile-selecting":""}`}>
+    <section className={`reader-page${mobileSelecting?" mobile-selecting":""}${libraryEntering?" library-entering":""}${libraryInstant?" library-instant":""}`}>
       <aside className="reader-rail"><SurahList active={number} onSelect={go}/><div className="rail-nav"><button disabled={number===1} onClick={()=>go(number-1)}>{language==="ar"?"→":"←"} {t("previous")}</button><button disabled={number===114} onClick={()=>go(number+1)}>{t("next")} {language==="ar"?"←":"→"}</button></div></aside>
       <div data-surah-ready={surahReady} className={`reading-area${surahReady&&surahDirection?` surah-${surahDirection}`:""}`}>
-        <button className="mobile-surah-back" onClick={()=>{setMobileSelecting(true);patchAndroidState({currentView:"read",libraryOpen:true});history.pushState({},"","/read");scrollTo({top:0,behavior:scrollMotion()})}}>{language==="ar"?"→":"←"} {language==="ar"?"اختيار سورة":language==="en"?"Choose a surah":"Choisir une sourate"}</button>
+        <button className="mobile-surah-back" onClick={()=>showLibrary()}>{language==="ar"?"→":"←"} {language==="ar"?"اختيار سورة":language==="en"?"Choose a surah":"Choisir une sourate"}</button>
         <div className="mobile-chapter-nav"><button disabled={number===1} onClick={()=>go(number-1)}>{language==="ar"?"→":"←"} {t("previous")}</button><button disabled={number===114} onClick={()=>go(number+1)}>{t("next")} {language==="ar"?"←":"→"}</button></div>
         <div className="reading-top">
           <div className="verse-jump"><button aria-label={language==="ar"?"الآية السابقة":language==="en"?"Previous verse":"Verset précédent"} onClick={()=>jumpToVerse(navVerse-1)} disabled={navVerse<=1}>{language==="ar"?"→":"←"}</button><label><span>{language==="ar"?"الانتقال إلى الآية":language==="en"?"Go to verse":"Aller au verset"}</span><select value={navVerse} onChange={e=>jumpToVerse(Number(e.target.value))}>{surah.verses.map(v=><option key={v.number} value={v.number}>{language==="ar"?`الآية ${v.number}`:`${language==="en"?"Verse":"Verset"} ${v.number}`}</option>)}</select></label><button aria-label={language==="ar"?"الآية التالية":language==="en"?"Next verse":"Verset suivant"} onClick={()=>jumpToVerse(navVerse+1)} disabled={navVerse>=surah.verses.length}>{language==="ar"?"←":"→"}</button></div>

@@ -1,10 +1,12 @@
 /** Cloudflare Worker entry point for the vinext-starter template. */
 import { handleImageOptimization, DEFAULT_DEVICE_SIZES, DEFAULT_IMAGE_SIZES } from "vinext/server/image-optimization";
 import handler from "vinext/server/app-router-entry";
+import { accountApi, cleanupAccounts, hasAppAccess, type AccountEnv } from "./accountApi";
+import { protectedPage } from "../lib/appEntry";
+import { hadithApi } from "./hadithApi";
 
-interface Env {
-  ASSETS: Fetcher;
-  DB: D1Database;
+interface Env extends AccountEnv {
+  ASSETS: { fetch(request: Request): Promise<Response> };
   IMAGES: {
     input(stream: ReadableStream): {
       transform(options: Record<string, unknown>): {
@@ -28,6 +30,20 @@ interface ExecutionContext {
 const worker = {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
+    const accountResponse = await accountApi(request, env, ctx);
+    if (accountResponse) return accountResponse;
+    const hadithResponse = await hadithApi(request);
+    if (hadithResponse) return hadithResponse;
+
+    if (protectedPage(url.pathname) || url.pathname === "/api/ai-fiqh") {
+      if (url.pathname === "/api/ai-fiqh" && request.method === "POST" && request.headers.get("origin") !== (env.APP_ORIGIN ? new URL(env.APP_ORIGIN).origin : url.origin)) {
+        return Response.json({ error: "invalid_origin" }, { status: 403, headers: { "cache-control": "no-store" } });
+      }
+      if (!await hasAppAccess(request, env)) {
+        if (url.pathname === "/api/ai-fiqh") return Response.json({ error: "unauthorized" }, { status: 401, headers: { "cache-control": "no-store" } });
+        return new Response(null, { status: 303, headers: { location: `/welcome?login=1&next=${encodeURIComponent(url.pathname + url.search)}`, "cache-control": "no-store" } });
+      }
+    }
 
     const warshMatch = url.pathname.match(/^\/api\/warsh\/(\d{1,3})$/);
     if (warshMatch) {
@@ -53,7 +69,14 @@ const worker = {
       }, allowedWidths);
     }
 
-    return handler.fetch(request, env, ctx);
+    const response = await handler.fetch(request, env, ctx);
+    if (!protectedPage(url.pathname)) return response;
+    const headers = new Headers(response.headers);
+    headers.set("cache-control", "private, no-store");
+    return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
+  },
+  async scheduled(_event: unknown, env: Env, ctx: ExecutionContext) {
+    ctx.waitUntil(cleanupAccounts(env));
   },
 };
 

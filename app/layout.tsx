@@ -3,6 +3,9 @@ import "./globals.css";
 import ResumeToast from "../components/ResumeToast";
 import WelcomeOnboarding from "../components/WelcomeOnboarding";
 import AppRuntime from "../components/AppRuntime";
+import AccountProvider from "../components/AccountProvider";
+import FirstVisitLanguage from "../components/FirstVisitLanguage";
+import EntryGate from "../components/EntryGate";
 
 export const metadata: Metadata = {
   title: "Nūr — Le Coran, éclairé",
@@ -29,5 +32,5 @@ export const viewport: Viewport = {
 const androidBootstrap=`try{var raw=window.NurAndroid&&window.NurAndroid.getState&&window.NurAndroid.getState();var shared=raw?JSON.parse(raw):null;if(shared){if(shared.theme)localStorage.setItem('nur-theme',shared.theme);if(shared.language)localStorage.setItem('nur-language',shared.language);if(shared.onboarded)localStorage.setItem('nur-onboarding-complete','1')}var theme=(shared&&shared.theme)||localStorage.getItem('nur-theme')||'dark';var language=(shared&&shared.language)||localStorage.getItem('nur-language')||'fr';if(language!=='fr'&&language!=='en'&&language!=='ar')language='fr';document.documentElement.lang=language;document.documentElement.dir=language==='ar'?'rtl':'ltr';document.documentElement.setAttribute('data-theme',theme);document.documentElement.setAttribute('data-motion',localStorage.getItem('nur-reduced-motion')==='1'?'reduced':'full')}catch(e){document.documentElement.setAttribute('data-theme','dark')}`;
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="fr" suppressHydrationWarning><head><script dangerouslySetInnerHTML={{__html:androidBootstrap}}/></head><body>{children}<AppRuntime/><ResumeToast/><WelcomeOnboarding/></body></html>;
+  return <html lang="fr" suppressHydrationWarning><head><script dangerouslySetInnerHTML={{__html:androidBootstrap}}/></head><body><AccountProvider><EntryGate>{children}</EntryGate><AppRuntime/><ResumeToast/><FirstVisitLanguage/><WelcomeOnboarding/></AccountProvider></body></html>;
 }

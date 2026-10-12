@@ -49,12 +49,51 @@ test("server-renders the Nūr application shell", async () => {
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
   const html = await response.text();
   assert.match(html, /<title>Nūr — Le Coran, éclairé<\/title>/i);
-  assert.match(html, /href="\/read"[^>]*>Lire<\/a>/i);
-  assert.match(html, /href="\/assistant"[^>]*>Fqih<\/a>/i);
-  assert.match(html, /href="\/favorites"[^>]*>Favoris<\/a>/i);
+  assert.doesNotMatch(html, /<nav|href="\/(?:read|assistant|favorites)"/i);
+  assert.match(html, /landing-settings-trigger/i);
+  assert.match(html, /href="\/welcome\?login=1"[^>]*>Se connecter<\/a>/i);
+  assert.match(html, /href="\/welcome\?mode=signup"[^>]*>S’inscrire<\/a>/i);
+  assert.match(html, /theme-trigger/i);
+  assert.match(html, /class="primary landing-start" href="\/welcome\?mode=signup"/i);
   assert.match(html, /Nūr a été créé par un jeune de 14 ans comme une sadaqa jariya/i);
   assert.match(html, /Fqih · assistant éducatif/i);
   assert.doesNotMatch(html, /Your site is taking shape|react-loading-skeleton/i);
+});
+
+test("private pages redirect anonymous requests instead of exposing the app shell", async () => {
+  for (const path of ["/home", "/read?surah=2", "/assistant", "/favorites", "/read/"]) {
+    const response = await render(path);
+    assert.equal(response.status, 303);
+    assert.equal(response.headers.get("location"), `/welcome?login=1&next=${encodeURIComponent(path)}`);
+    assert.equal(response.headers.get("cache-control"), "no-store");
+    assert.equal(await response.text(), "");
+  }
+});
+
+test("mobile authentication keeps the complete wordmark without the old square icon background", async () => {
+  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.match(css, /\.topbar\.landing-header>\.brand\{[^}]*padding:0;[^}]*border-radius:0;[^}]*background:transparent/);
+  assert.match(css, /\.topbar\.landing-header \.logo-crop\{[^}]*width:100%!important;height:100%!important;overflow:visible/);
+  assert.match(css, /\.topbar\.landing-header \.logo-crop img\{position:static;[^}]*object-fit:contain/);
+  const html = await (await render("/welcome?login=1")).text();
+  assert.match(html, /landing-header/);
+  assert.match(html, /src="\/nur-logo\.png" alt="Nūr"/);
+});
+
+test("welcome separates authentication from first-time setup and removes the backdrop wordmark", async () => {
+  const [welcome, onboarding, signIn] = await Promise.all([
+    readFile(new URL("../app/welcome/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../components/WelcomeOnboarding.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../components/SignInStep.tsx", import.meta.url), "utf8"),
+  ]);
+  assert.doesNotMatch(welcome, /<span>NŪR<\/span>/);
+  assert.doesNotMatch(onboarding, /Gardez votre chemin|Keep your journey/);
+  assert.match(onboarding, /Heureux de vous revoir/);
+  assert.match(onboarding, /Bienvenue dans Nūr/);
+  assert.match(onboarding, /AUTH: Step = 0, NAME: Step = 1, LANGUAGE: Step = 2, READING: Step = 3, AMBIENCE: Step = 4/);
+  assert.match(onboarding, /if \(user\.onboarded\) \{ location\.replace\(destination\(\)\); return; \}/);
+  assert.match(onboarding, /if \(!await synchronize\(\)\) throw/);
+  assert.match(signIn, /google\/start\?mode=\$\{mode\}/);
 });
 
 test("keeps offline audio Android-only and supports both motion directions", async () => {
@@ -160,7 +199,7 @@ test("reduced motion removes animations, transitions and animated scrolling", as
   assert.match(css, /html\[data-motion="reduced"\]:not\(#nur-motion-override\) \*,/);
   assert.match(css, /animation:none!important;\s*transition:none!important;\s*scroll-behavior:auto!important/);
   assert.match(motion, /return motionReduced\(\) \? "auto" : "smooth"/);
-  assert.match(runtime, /if\(motionReduced\(\)\)/);
+  assert.match(runtime, /if\(!motionReduced\(\)\)/);
   assert.match(settings, /if\(motionReduced\(\)\)\{onClose\(\);return\}/);
 });
 

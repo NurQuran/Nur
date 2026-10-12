@@ -2,15 +2,20 @@
 
 import { useRef, useState } from "react";
 import { useLanguage } from "../lib/i18n";
+import { useAccount } from "./AccountProvider";
+import { validHadithPreferences } from "../lib/hadithSettings";
+import { validHadithPosition } from "../lib/hadithPosition";
 
-const keys = ["nur-language", "nur-theme", "nur-reduced-motion", "nur-settings", "nur-favorite-surahs", "nur-read-surahs", "nur-last-position", "nur-progress", "nur-study", "nur-onboarding-complete"];
+const keys = ["nur-language", "nur-theme", "nur-reduced-motion", "nur-settings", "nur-favorite-surahs", "nur-read-surahs", "nur-last-position", "nur-progress", "nur-study", "nur-onboarding-complete", "nur-hadith-preferences", "nur-last-hadith"];
 const list = (value: unknown) => Array.isArray(value) && value.length <= 114 && value.every(n => Number.isInteger(n) && n >= 1 && n <= 114);
 
 export default function BackupControls() {
   const { language } = useLanguage();
+  const { user, ready } = useAccount();
   const local = (fr: string, en: string, ar: string) => language === "ar" ? ar : language === "en" ? en : fr;
   const input = useRef<HTMLInputElement>(null);
   const [status, setStatus] = useState("");
+  if (!ready || user) return null;
   function exportBackup() {
     const web = Object.fromEntries(keys.map(key => [key, localStorage.getItem(key)]).filter(([, value]) => value !== null));
     const position = JSON.parse(web["nur-last-position"] || "{}"), settings = JSON.parse(web["nur-settings"] || "{}");
@@ -28,6 +33,8 @@ export default function BackupControls() {
       const value = parsed.state;
       if (!list(value.favorites) || !list(value.read) || !["fr", "en", "ar"].includes(value.language) || !["dark", "light"].includes(value.theme) || !["hafs", "warsh"].includes(value.riwayah) || !Number.isInteger(value.current) || value.current < 1 || value.current > 114 || !Number.isInteger(value.currentVerse) || value.currentVerse < 1 || value.currentVerse > 286) throw new Error("values");
       if (parsed.web && typeof parsed.web === "object") {
+        if (parsed.web["nur-hadith-preferences"] !== undefined && !validHadithPreferences(JSON.parse(parsed.web["nur-hadith-preferences"]))) throw new Error("hadith preferences");
+        if (parsed.web["nur-last-hadith"] !== undefined && !validHadithPosition(JSON.parse(parsed.web["nur-last-hadith"]))) throw new Error("hadith position");
         for (const key of keys) if (typeof parsed.web[key] === "string") localStorage.setItem(key, parsed.web[key]);
       } else {
         localStorage.setItem("nur-language", value.language); localStorage.setItem("nur-theme", value.theme);

@@ -4,8 +4,10 @@ import type { ReactNode } from "react";
 import type { ReaderOptions } from "../lib/quran/types";
 import { warshReciters } from "../lib/quran/adapters/alQuranCloud";
 import { useLanguage } from "../lib/i18n";
-import { clearAndroidState } from "../lib/androidSync";
+import AccountPanel from "./AccountPanel";
+import ResetNur from "./ResetNur";
 import BackupControls from "./BackupControls";
+import HadithPreferences from "./HadithPreferences";
 import ThemePreference from "./ThemePreference";
 import { motionReduced } from "../lib/motion";
 
@@ -13,26 +15,17 @@ const legends=[{c:"madda_normal",fr:"Prolongation normale",en:"Normal prolongati
 const hafsVoices=[{id:"ar.alafasy",name:"Mishary Alafasy"},{id:"ar.husary",name:"Mahmoud Al-Hussary"},{id:"ar.abdurrahmaansudais",name:"Abdurrahman As-Sudais"},{id:"ar.mahermuaiqly",name:"Maher Al-Muaiqly"},{id:"ar.saoodshuraym",name:"Saoud Ash-Shuraym"},{id:"ar.abdulsamad",name:"Abdul Basit Abdus-Samad"},{id:"ar.aymanswoaid",name:"Ayman Sowaid"},{id:"ar.muhammadayyoub",name:"Muhammad Ayyoub"}];
 
 export default function SettingsModal({value,onChange,onClose,studyPanel,customizePanel,audioDownloadPanel}:{value:ReaderOptions;onChange:(value:ReaderOptions)=>void;onClose:()=>void;studyPanel?:ReactNode;customizePanel?:ReactNode;audioDownloadPanel?:ReactNode}){
-  const {t,language,setLanguage}=useLanguage(); const [closing,setClosing]=useState(false),[resetConfirm,setResetConfirm]=useState(false),[resetting,setResetting]=useState(false),[audioStatus,setAudioStatus]=useState(""),[reducedMotion,setReducedMotion]=useState(false);
+  const {t,language,setLanguage}=useLanguage(); const [closing,setClosing]=useState(false),[audioStatus,setAudioStatus]=useState(""),[reducedMotion,setReducedMotion]=useState(false);
   const local=(fr:string,en:string,ar:string)=>language==="ar"?ar:language==="en"?en:fr;
   useEffect(()=>{const status=(event:Event)=>setAudioStatus(String((event as CustomEvent).detail||""));addEventListener("nur-audio-download-status",status);return()=>removeEventListener("nur-audio-download-status",status)},[]);
   useEffect(()=>setReducedMotion(localStorage.getItem("nur-reduced-motion")==="1"),[]);
   function changeMotion(next:boolean){setReducedMotion(next);localStorage.setItem("nur-reduced-motion",next?"1":"0");document.documentElement.setAttribute("data-motion",next?"reduced":"full")}
   function close(){if(motionReduced()){onClose();return}setClosing(true);setTimeout(onClose,300)}
-  async function resetAllData(){
-    setResetting(true);
-    Object.keys(localStorage).filter(key=>key.startsWith("nur-")).forEach(key=>localStorage.removeItem(key));
-    clearAndroidState();
-    Object.keys(sessionStorage).filter(key=>key.startsWith("nur-")).forEach(key=>sessionStorage.removeItem(key));
-    if("caches" in window){try{const names=await caches.keys();await Promise.all(names.filter(name=>name.startsWith("nur-")).map(name=>caches.delete(name)))}catch{}}
-    document.documentElement.setAttribute("data-theme","dark");
-    location.replace("/");
-  }
   return <div className={`modal-layer ${closing?"closing":""}`} role="presentation" onMouseDown={e=>e.target===e.currentTarget&&close()}>
     <section className="settings-modal" role="dialog" aria-modal="true" aria-labelledby="settings-title">
       <div className="modal-head"><div><small>{t("preferences")}</small><h2 id="settings-title">{t("settings")}</h2></div><button className="icon" onClick={close} aria-label={t("close")}>×</button></div>
       <div className="settings-content">
-      <ThemePreference/>
+      <ThemePreference/><AccountPanel/>
       <div className="setting-group language-setting"><span className="setting-icon"><img className="settings-png-icon" src="/icons/ui/language.png" alt=""/></span><div><h3>{t("language")}</h3><p>{local("Choisissez la langue de toute l’interface.","Choose the language of the entire interface.","اختر لغة الواجهة كاملة.")}</p><div className="choice-row language-choice"><button className={language==="fr"?"selected":""} onClick={()=>setLanguage("fr")}><strong>Français</strong><small>FR</small></button><button className={language==="en"?"selected":""} onClick={()=>setLanguage("en")}><strong>English</strong><small>EN</small></button><button className={language==="ar"?"selected":""} onClick={()=>setLanguage("ar")}><strong>العربية</strong><small>ع</small></button></div></div></div>
       <div className="setting-group motion-setting"><span className="setting-icon" aria-hidden="true">◌</span><div><h3>{local("Animations réduites","Reduced animations","تقليل الحركات")}</h3><p>{local("Désactive toutes les animations et les défilements animés.","Turns off all animations and smooth scrolling.","يعطّل جميع الحركات والتمرير المتحرك.")}</p><label className="switch-line"><span>{local("Activer les animations réduites","Enable reduced animations","تفعيل تقليل الحركات")}</span><input type="checkbox" checked={reducedMotion} onChange={e=>changeMotion(e.target.checked)}/></label></div></div>
       <div className="setting-group"><span className="setting-icon audio-setting-icon" aria-hidden="true"><i/><i/><i/></span><div><h3>{t("recitation")}</h3><p>{t("recitationHelp")}</p>
@@ -51,15 +44,11 @@ export default function SettingsModal({value,onChange,onClose,studyPanel,customi
         <button className={value.showFrench&&value.showEnglish?"selected":""} onClick={()=>onChange({...value,showFrench:true,showEnglish:true})}>{local("Les deux","Both","كلتاهما")}</button>
       </div><label className="switch-line"><span>{local("Prononciation","Pronunciation","النطق")}</span><input type="checkbox" checked={value.showTransliteration} onChange={e=>onChange({...value,showTransliteration:e.target.checked})}/></label></div></div>
       {studyPanel}
-      <BackupControls/>
+      <HadithPreferences/><BackupControls/>
       <div className="settings-reading-section">{customizePanel}</div>
       </div>
       <button className="primary modal-save" onClick={close}>{t("apply")}</button>
-      <section className={`reset-data-card${resetConfirm?" confirming":""}`} aria-labelledby="reset-data-title">
-        <span className="reset-data-icon" aria-hidden="true"><i/></span>
-        <div><strong id="reset-data-title">{local("Réinitialiser Nūr","Reset Nūr","إعادة ضبط نُور")}</strong><p>{local("Efface les favoris, la progression, les téléchargements et toutes les préférences de cet appareil.","Erases favorites, progress, downloads and every preference on this device.","يمسح المفضلة والتقدم والتنزيلات وجميع التفضيلات على هذا الجهاز.")}</p></div>
-        {!resetConfirm?<button className="reset-data-button" onClick={()=>setResetConfirm(true)}>{local("Effacer toutes les données","Erase all data","مسح جميع البيانات")}</button>:<div className="reset-data-confirm" role="alert"><p>{local("Tout recommencer et revoir l’introduction ?","Start over and show the introduction again?","هل تريد البدء من جديد وعرض المقدمة مرة أخرى؟")}</p><div><button onClick={()=>setResetConfirm(false)} disabled={resetting}>{local("Annuler","Cancel","إلغاء")}</button><button className="danger" onClick={resetAllData} disabled={resetting}>{resetting?local("Effacement…","Erasing…","جارٍ المسح…"):local("Oui, tout effacer","Yes, erase everything","نعم، امسح الكل")}</button></div></div>}
-      </section>
+      <ResetNur/>
     </section>
   </div>
 }
